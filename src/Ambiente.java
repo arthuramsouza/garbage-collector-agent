@@ -14,7 +14,7 @@ public class Ambiente {
   public static final char LIXEIRA = 'L';
   public static final char RECARGA = 'R';
   public static final char PAREDE = 'P';
-  public static final char LIMPO = 'C';
+  public static final char LIMPO = '.';
 
   /* TODO Coloca elementos (lixeiras, lixo e carregadores) de forma randomica no ambiente  */
   private void carregar(int n_lixeiras, int n_carregadores, int n_lixo) {
