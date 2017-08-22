@@ -30,6 +30,7 @@ public class Ambiente {
         matriz[i][j] = LIMPO;
 
     matriz[4][0] = RECARGA;
+    matriz[2][0] = LIXEIRA;
     matriz[4][9] = RECARGA;
   }
 

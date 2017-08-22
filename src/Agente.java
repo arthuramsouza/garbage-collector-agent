@@ -3,6 +3,7 @@ public class Agente {
   private char direcao;   // Direcao de varredura {d, e}
   private int estado;
   private boolean baixou;
+  private boolean baixarUrgentemente;
 
   /* Construtor */
   public Agente(int px, int py, char direcao, int estado) {
@@ -11,6 +12,7 @@ public class Agente {
     this.direcao = direcao;
     this.estado = estado;
     this.baixou = false;
+    this.baixarUrgentemente = false;
   }
 
   public int getX() { return px; }
@@ -34,40 +36,63 @@ public class Agente {
 
   /* Atualiza estado do agente com base no valor das adjacencias
   > Requer: informacoes da celula atual e adjacentes
+
+    0 1 2
+    3 4 5
+    6 7 8
   */
   public void atualizar(char atual, char esq, char dir, char cima, char baixo) {
     if (direcao == 'e') {
-        if (esq == Ambiente.NULO && !baixou) {
+
+        if (baixarUrgentemente) {
+            while((baixo == Ambiente.RECARGA) || (baixo == Ambiente.LIXEIRA))
+                px-=1;
             py+=1;
-            direcao = 'd';
-            baixou = true;
-            System.out.println("Dir: " + direcao + "\tBaixou: " + baixou + "\tX: " + px + "\tY: " + py);
-            System.out.println("ADJACENCIAS\tEsq: " + esq + "\tDir: " + dir);
+            baixarUrgentemente = false;
+        }
+
+        if (esq == Ambiente.NULO && !baixou) {
+            if((baixo != Ambiente.RECARGA) && (baixo != Ambiente.LIXEIRA)) {
+                py+=1;
+                direcao = 'd';
+                baixou = true;
+            }
+            else {
+                baixarUrgentemente = true;
+                direcao = 'd';
+            }
         }
         else {
             // ir para a esquerda
             px-=1;
             baixou = false;
-            System.out.println("Dir: " + direcao + "\tBaixou: " + baixou + "\tX: " + px + "\tY: " + py);
-            System.out.println("ADJACENCIAS\tEsq: " + esq + "\tDir: " + dir);
         }
     }
 
     else if (direcao == 'd') {
-        if (dir == Ambiente.NULO && !baixou) {
-            // se possível, ir para baixo
+
+        if (baixarUrgentemente) {
+            while((baixo == Ambiente.RECARGA) || (baixo == Ambiente.LIXEIRA))
+                px+=1;
             py+=1;
-            direcao = 'e';
-            baixou = true;
-            System.out.println("Dir: " + direcao + "\tBaixou: " + baixou + "\tX: " + px + "\tY: " + py);
-            System.out.println("ADJACENCIAS\tEsq: " + esq + "\tDir: " + dir);
+        }
+
+        if (dir == Ambiente.NULO && !baixou) {
+            if((baixo != Ambiente.RECARGA) && (baixo != Ambiente.LIXEIRA)) {
+                py+=1;
+                direcao = 'e';
+                baixou = true;
+            }
+            else {
+                baixarUrgentemente = true;
+                direcao = 'e';
+            }
+
         }
         else {
             // ir para a direita
             px+=1;
             baixou = false;
-            System.out.println("Dir: " + direcao + "\tBaixou: " + baixou + "\tX: " + px + "\tY: " + py);
-            System.out.println("ADJACENCIAS\tEsq: " + esq + "\tDir: " + dir);
         }
     }
     
