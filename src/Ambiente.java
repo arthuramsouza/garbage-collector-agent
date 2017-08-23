@@ -63,9 +63,9 @@ public class Ambiente {
     for(int i = 0; i < tamanho; i++) {
       for(int j = 0; j < tamanho; j++) {
         // desconsiderando as primeiras linhas da matriz
-        if(i < (this.tamanho-2) || i > 2) {
-          this.matriz[i][metade*2] = PAREDE;
-          this.matriz[i][metade] = PAREDE;
+        if(i < (this.tamanho-2) && i > 2) {
+          this.matriz[i][metade-2] = PAREDE;
+          this.matriz[i][metade+2] = PAREDE;
         }
       }
     }
@@ -105,7 +105,7 @@ public class Ambiente {
     while(true) {
       print();
       try {
-        Thread.sleep(1000);
+        Thread.sleep(500);
         System.out.print(ANSI_CLS + ANSI_HOME);
         System.out.flush();
 
