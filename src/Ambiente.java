@@ -1,179 +1,203 @@
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Ambiente {
-  private int tamanhoMatriz;
-  private int quantidadeLixeiras;
-  private int quantidadeRecargas;
-  private char matriz[][];
+	private int tamanhoMatriz;
+	private int quantidadeLixeiras;
+	private int quantidadeRecargas;
+	private char matriz[][];
 
-  List<Agente> agentes;
+	List<Agente> agentes;
 
-  private final String ANSI_CLS = "\u001b[2J";
-  private final String ANSI_HOME = "\u001b[H";
-  public static final char NULO = 'N';
-  public static final char SUJEIRA = 'S';
-  public static final char LIXEIRA = 'L';
-  public static final char RECARGA = 'R';
-  public static final char PAREDE = 'P';
-  public static final char LIMPO = '.';
+	private final String ANSI_CLS = "\u001b[2J";
+	private final String ANSI_HOME = "\u001b[H";
+	public static final char NULO = 'N';
+	public static final char SUJEIRA = 'S';
+	public static final char LIXEIRA = 'L';
+	public static final char RECARGA = 'R';
+	public static final char PAREDE = 'P';
+	public static final char LIMPO = '.';
 
-  /* Construtor da classe */
-  public Ambiente(int tamanhoMatriz, int quantidadeLixeiras, int quantidadeRecargas) {
-    agentes = new ArrayList<Agente>();
-    this.tamanhoMatriz = tamanhoMatriz;
-    this.quantidadeLixeiras = quantidadeLixeiras;
-    this.quantidadeRecargas = quantidadeRecargas;
-    this.matriz = new char[tamanhoMatriz][tamanhoMatriz];
-    carregar();
-  }
+	private int gerador;
+	Random random = new Random();
 
-  /* TODO Coloca elementos (lixeiras, lixo e carregadores) de forma randomica no ambiente  */
-  private void carregar(int n_lixeiras, int n_carregadores, int n_lixo) {
-    for (int i = 0; i < tamanhoMatriz; i++)
-      for (int j = 0; j < tamanhoMatriz; j++)
-        matriz[i][j] = LIMPO;
-  }
+	/* Construtor da classe */
+	public Ambiente(int tamanhoMatriz, int quantidadeLixeiras, int quantidadeRecargas) {
+		agentes = new ArrayList<Agente>();
+		this.tamanhoMatriz = tamanhoMatriz;
+		this.quantidadeLixeiras = quantidadeLixeiras;
+		this.quantidadeRecargas = quantidadeRecargas;
+		this.matriz = new char[tamanhoMatriz][tamanhoMatriz];
+		carregar();
+	}
 
-  /* Coloca elementos no ambiente - estatico */
-  private void carregar() {
-    for (int i = 0; i < tamanhoMatriz; i++) {
-      for (int j = 0; j < tamanhoMatriz; j++) {
-        matriz[i][j] = LIMPO;
-      }
-    }
+	/*
+	 * TODO Coloca elementos (lixeiras, lixo e carregadores) de forma randomica
+	 * no ambiente
+	 */
+	private void carregar(int n_lixeiras, int n_carregadores, int n_lixo) {
+		for (int i = 0; i < tamanhoMatriz; i++)
+			for (int j = 0; j < tamanhoMatriz; j++)
+				matriz[i][j] = LIMPO;
+	}
 
-    inserirParedes();
-    inserirLixeiras();
-    inserirSujeiras();
-  }
+	/* Coloca elementos no ambiente - estatico */
+	private void carregar() {
+		for (int i = 0; i < tamanhoMatriz; i++) {
+			for (int j = 0; j < tamanhoMatriz; j++) {
+				matriz[i][j] = LIMPO;
+			}
+		}
 
-  /* Insere paredes no ambiente */
-  public void inserirParedes() {
-    // auxiliares para adicionar as bordas na parede
-    boolean bordaCimaPosicaoDir = false;
-    boolean bordaCimaPosicaoEsq = false;
-    boolean bordaBaixoPosicaoDir = false;
-    boolean bordaBaixoPosicaoEsq = false;
+		inserirParedes();
+		inserirLixeiras();
+		inserirSujeiras();
+	}
 
-    for (int i = 0; i < tamanhoMatriz; i++) {
-      for (int j = 0; j < tamanhoMatriz; j++) {
-        if(i > 1 && i < this.tamanhoMatriz-2){
-          // auxiliares para adicionar as paredes 
-          int posicaoDir = this.tamanhoMatriz - 4;
-          int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
-          this.matriz[i][posicaoDir] = PAREDE;
-          this.matriz[i][posicaoEsq] = PAREDE;
+	/* Insere paredes no ambiente */
+	public void inserirParedes() {
+		// auxiliares para adicionar as bordas na parede
+		boolean bordaCimaPosicaoDir = false;
+		boolean bordaCimaPosicaoEsq = false;
+		boolean bordaBaixoPosicaoDir = false;
+		boolean bordaBaixoPosicaoEsq = false;
+		// auxiliares para adicionar as paredes
+		int posicaoDir = this.tamanhoMatriz - 4;
+		int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
 
-          if(!bordaCimaPosicaoDir) {
-            this.matriz[i][posicaoDir+1] = PAREDE;
-            bordaCimaPosicaoDir = true;
-          }
-          if(!bordaCimaPosicaoEsq) {
-            this.matriz[i][posicaoEsq-1] = PAREDE;
-            bordaCimaPosicaoEsq = true;
-          }
-          if(!bordaBaixoPosicaoDir) {
-            if(i == (this.tamanhoMatriz-2)-1) {
-              this.matriz[i][posicaoDir+1] = PAREDE;
-              bordaBaixoPosicaoDir = true;
-            }
-          }
-          if(!bordaBaixoPosicaoEsq) {
-            if(i == (this.tamanhoMatriz-2)-1) {
-              this.matriz[i][posicaoEsq-1] = PAREDE;
-              bordaBaixoPosicaoEsq = true;
-            }
-          }
-        }
-      }
-    }
-  }
+		for (int i = 0; i < tamanhoMatriz; i++) {
+			for (int j = 0; j < tamanhoMatriz; j++) {
+				if (i > 1 && i < this.tamanhoMatriz - 2) {
 
-  //TODO: adicionar lixeiras randomicas considerando as paredes
-  public void inserirLixeiras() {
-    int auxiliar = this.quantidadeLixeiras;
-    for (int i = 0; i < tamanhoMatriz; i++) {
-      for (int j = 0; j < tamanhoMatriz; j++) {
-        if(this.matriz[i][j] != PAREDE || this.matriz[i][j] != SUJEIRA || this.matriz[i][j] != RECARGA) {
-          if(auxiliar > 0) {
-            //this.matriz[i][j] = LIXEIRA;
-          }
-        }
-      }
-    }
-  }
+					this.matriz[i][posicaoDir] = PAREDE;
+					this.matriz[i][posicaoEsq] = PAREDE;
 
-  //TODO: adicionar sujeiras randomicas considerando as paredes
-  public void inserirSujeiras() {
+					if (!bordaCimaPosicaoDir) {
+						this.matriz[i][posicaoDir + 1] = PAREDE;
+						bordaCimaPosicaoDir = true;
+					}
+					if (!bordaCimaPosicaoEsq) {
+						this.matriz[i][posicaoEsq - 1] = PAREDE;
+						bordaCimaPosicaoEsq = true;
+					}
+					if (!bordaBaixoPosicaoDir) {
+						if (i == (this.tamanhoMatriz - 2) - 1) {
+							this.matriz[i][posicaoDir + 1] = PAREDE;
+							bordaBaixoPosicaoDir = true;
+						}
+					}
+					if (!bordaBaixoPosicaoEsq) {
+						if (i == (this.tamanhoMatriz - 2) - 1) {
+							this.matriz[i][posicaoEsq - 1] = PAREDE;
+							bordaBaixoPosicaoEsq = true;
+						}
+					}
+				}
+			}
+		}
+	}
 
-  }
+	// TODO: adicionar lixeiras randomicas considerando as paredes
+	public void inserirLixeiras() {
+		int posicaoDir = this.tamanhoMatriz - 4;
+		int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
+		int auxQuantidadeLixeiras = this.quantidadeLixeiras;
+		boolean adicionou = false;
 
-  /* Insere agente no ambiente */
-  public void inserirAgente(Agente agente) {
-    agentes.add(agente);
-  }
+		for (int i = 0; i < tamanhoMatriz; i++) {
+			for (int j = 0; j < tamanhoMatriz; j++) {
+				if ((i > 1 && i < this.tamanhoMatriz - 2) && auxQuantidadeLixeiras != 0) {
+					System.out.println("posicaoLivre(i, j)" + posicaoLivre(i, j));
+					if (posicaoLivre(i, j)) {
+						this.gerador = random.nextInt(tamanhoMatriz);
+						if (this.gerador > posicaoDir) {
+							this.matriz[this.gerador][posicaoDir] = LIXEIRA;
+							auxQuantidadeLixeiras--;
+						} else if (this.gerador < posicaoEsq) {
+							this.matriz[this.gerador][posicaoEsq] = LIXEIRA;
+							auxQuantidadeLixeiras--;
+						}
+					}
+				}
+			}
+		}
+	}
 
-  /* Imprime o estado atual do ambiente com seus agentes */
-  public void print() {
-    for (int i = 0; i < tamanhoMatriz; i++) {
-      for (int j = 0; j < tamanhoMatriz; j++) {
+	// TODO: adicionar sujeiras randomicas considerando as paredes
+	public void inserirSujeiras() {
 
-        // Verifica se algum agente esta nesta Posicao
-        for (Agente ag : agentes) {
-          if (ag.getX() == j && ag.getY() == i)
-            System.out.print("A ");
-          else
-            System.out.print(matriz[i][j] + " ");
+	}
 
-        }
-      }
-      System.out.println();
-    }
-  }
+	public boolean posicaoLivre(int i, int j) {
+		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA;
+	}
 
-  /* Executa a simulacao dos agentes no ambiente */
-  public void simular() {
-    System.out.print(ANSI_CLS + ANSI_HOME);
-    while (true) {
-      print();
-      try {
-        Thread.sleep(500);
-        System.out.print(ANSI_CLS + ANSI_HOME);
-        System.out.flush();
+	/* Insere agente no ambiente */
+	public void inserirAgente(Agente agente) {
+		agentes.add(agente);
+	}
 
-        for (Agente ag : agentes) {
-          char atual, esq, dir, cima, baixo;
-          atual = matriz[ag.getY()][ag.getX()];
+	/* Imprime o estado atual do ambiente com seus agentes */
+	public void print() {
+		for (int i = 0; i < tamanhoMatriz; i++) {
+			for (int j = 0; j < tamanhoMatriz; j++) {
 
-          if ((ag.getX() - 1) < 0)
-            esq = NULO;
-          else
-            esq = matriz[ag.getY()][ag.getX() - 1];
+				// Verifica se algum agente esta nesta Posicao
+				for (Agente ag : agentes) {
+					if (ag.getX() == j && ag.getY() == i)
+						System.out.print("A ");
+					else
+						System.out.print(matriz[i][j] + " ");
 
-          if ((ag.getX() + 1) >= tamanhoMatriz)
-            dir = NULO;
-          else
-            dir = matriz[ag.getY()][ag.getX() + 1];
+				}
+			}
+			System.out.println();
+		}
+	}
 
-          if ((ag.getY() - 1) < 0)
-            cima = NULO;
-          else
-            cima = matriz[ag.getY() - 1][ag.getX()];
+	/* Executa a simulacao dos agentes no ambiente */
+	public void simular() {
+		System.out.print(ANSI_CLS + ANSI_HOME);
+		while (true) {
+			print();
+			try {
+				Thread.sleep(500);
+				System.out.print(ANSI_CLS + ANSI_HOME);
+				System.out.flush();
 
-          if ((ag.getY() + 1) >= tamanhoMatriz)
-            baixo = NULO;
-          else
-            baixo = matriz[ag.getY() + 1][ag.getX()];
+				for (Agente ag : agentes) {
+					char atual, esq, dir, cima, baixo;
+					atual = matriz[ag.getY()][ag.getX()];
 
-          ag.atualizar(atual, esq, dir, cima, baixo);
-        }
+					if ((ag.getX() - 1) < 0)
+						esq = NULO;
+					else
+						esq = matriz[ag.getY()][ag.getX() - 1];
 
-      } catch (Exception e) {
-        e.printStackTrace();
-        System.exit(1);
-      }
-    }
-  }
+					if ((ag.getX() + 1) >= tamanhoMatriz)
+						dir = NULO;
+					else
+						dir = matriz[ag.getY()][ag.getX() + 1];
+
+					if ((ag.getY() - 1) < 0)
+						cima = NULO;
+					else
+						cima = matriz[ag.getY() - 1][ag.getX()];
+
+					if ((ag.getY() + 1) >= tamanhoMatriz)
+						baixo = NULO;
+					else
+						baixo = matriz[ag.getY() + 1][ag.getX()];
+
+					ag.atualizar(atual, esq, dir, cima, baixo);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+	}
 
 }
