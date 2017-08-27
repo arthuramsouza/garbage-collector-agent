@@ -2,7 +2,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Ambiente {
-  private int tamanho;
+  private int tamanhoMatriz;
   private int quantidadeLixeiras;
   private int quantidadeRecargas;
   private char matriz[][];
@@ -19,26 +19,26 @@ public class Ambiente {
   public static final char LIMPO = '.';
 
   /* Construtor da classe */
-  public Ambiente(int n, int quantidadeLixeiras, int quantidadeRecargas) {
+  public Ambiente(int tamanhoMatriz, int quantidadeLixeiras, int quantidadeRecargas) {
     agentes = new ArrayList<Agente>();
-    this.tamanho = n;
+    this.tamanhoMatriz = tamanhoMatriz;
     this.quantidadeLixeiras = quantidadeLixeiras;
     this.quantidadeRecargas = quantidadeRecargas;
-    matriz = new char[tamanho][tamanho];
+    this.matriz = new char[tamanhoMatriz][tamanhoMatriz];
     carregar();
   }
 
   /* TODO Coloca elementos (lixeiras, lixo e carregadores) de forma randomica no ambiente  */
   private void carregar(int n_lixeiras, int n_carregadores, int n_lixo) {
-    for (int i = 0; i < tamanho; i++)
-      for (int j = 0; j < tamanho; j++)
+    for (int i = 0; i < tamanhoMatriz; i++)
+      for (int j = 0; j < tamanhoMatriz; j++)
         matriz[i][j] = LIMPO;
   }
 
   /* Coloca elementos no ambiente - estatico */
   private void carregar() {
-    for (int i = 0; i < tamanho; i++) {
-      for (int j = 0; j < tamanho; j++) {
+    for (int i = 0; i < tamanhoMatriz; i++) {
+      for (int j = 0; j < tamanhoMatriz; j++) {
         matriz[i][j] = LIMPO;
       }
     }
@@ -48,20 +48,44 @@ public class Ambiente {
     inserirSujeiras();
   }
 
-  /* Insere agente no ambiente */
-  public void inserirAgente(Agente agente) {
-    agentes.add(agente);
-  }
-
   /* Insere paredes no ambiente */
   public void inserirParedes() {
-    for (int i = 0; i < tamanho; i++) {
-      for (int j = 0; j < tamanho; j++) {
-        // realizando o tratamento lateral
-        this.matriz[i][this.tamanho - 3] = PAREDE;
-        //this.matriz[i][0 - 3] = PAREDE;
-        
-        //this.matriz[i][this.tamanho + 2] = PAREDE;
+    // auxiliares para adicionar as bordas na parede
+    boolean bordaCimaPosicaoDir = false;
+    boolean bordaCimaPosicaoEsq = false;
+    boolean bordaBaixoPosicaoDir = false;
+    boolean bordaBaixoPosicaoEsq = false;
+
+    for (int i = 0; i < tamanhoMatriz; i++) {
+      for (int j = 0; j < tamanhoMatriz; j++) {
+        if(i > 1 && i < this.tamanhoMatriz-2){
+          // auxiliares para adicionar as paredes 
+          int posicaoDir = this.tamanhoMatriz - 4;
+          int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
+          this.matriz[i][posicaoDir] = PAREDE;
+          this.matriz[i][posicaoEsq] = PAREDE;
+
+          if(!bordaCimaPosicaoDir) {
+            this.matriz[i][posicaoDir+1] = PAREDE;
+            bordaCimaPosicaoDir = true;
+          }
+          if(!bordaCimaPosicaoEsq) {
+            this.matriz[i][posicaoEsq-1] = PAREDE;
+            bordaCimaPosicaoEsq = true;
+          }
+          if(!bordaBaixoPosicaoDir) {
+            if(i == (this.tamanhoMatriz-2)-1) {
+              this.matriz[i][posicaoDir+1] = PAREDE;
+              bordaBaixoPosicaoDir = true;
+            }
+          }
+          if(!bordaBaixoPosicaoEsq) {
+            if(i == (this.tamanhoMatriz-2)-1) {
+              this.matriz[i][posicaoEsq-1] = PAREDE;
+              bordaBaixoPosicaoEsq = true;
+            }
+          }
+        }
       }
     }
   }
@@ -69,8 +93,8 @@ public class Ambiente {
   //TODO: adicionar lixeiras randomicas considerando as paredes
   public void inserirLixeiras() {
     int auxiliar = this.quantidadeLixeiras;
-    for (int i = 0; i < tamanho; i++) {
-      for (int j = 0; j < tamanho; j++) {
+    for (int i = 0; i < tamanhoMatriz; i++) {
+      for (int j = 0; j < tamanhoMatriz; j++) {
         if(this.matriz[i][j] != PAREDE || this.matriz[i][j] != SUJEIRA || this.matriz[i][j] != RECARGA) {
           if(auxiliar > 0) {
             //this.matriz[i][j] = LIXEIRA;
@@ -85,10 +109,15 @@ public class Ambiente {
 
   }
 
+  /* Insere agente no ambiente */
+  public void inserirAgente(Agente agente) {
+    agentes.add(agente);
+  }
+
   /* Imprime o estado atual do ambiente com seus agentes */
   public void print() {
-    for (int i = 0; i < tamanho; i++) {
-      for (int j = 0; j < tamanho; j++) {
+    for (int i = 0; i < tamanhoMatriz; i++) {
+      for (int j = 0; j < tamanhoMatriz; j++) {
 
         // Verifica se algum agente esta nesta Posicao
         for (Agente ag : agentes) {
@@ -122,7 +151,7 @@ public class Ambiente {
           else
             esq = matriz[ag.getY()][ag.getX() - 1];
 
-          if ((ag.getX() + 1) >= tamanho)
+          if ((ag.getX() + 1) >= tamanhoMatriz)
             dir = NULO;
           else
             dir = matriz[ag.getY()][ag.getX() + 1];
@@ -132,7 +161,7 @@ public class Ambiente {
           else
             cima = matriz[ag.getY() - 1][ag.getX()];
 
-          if ((ag.getY() + 1) >= tamanho)
+          if ((ag.getY() + 1) >= tamanhoMatriz)
             baixo = NULO;
           else
             baixo = matriz[ag.getY() + 1][ag.getX()];
