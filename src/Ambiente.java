@@ -107,18 +107,14 @@ public class Ambiente {
 
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
-				if ((i > 1 && i < this.tamanhoMatriz - 2) && auxQuantidadeLixeiras != 0) {
-					System.out.println("posicaoLivre(i, j)" + posicaoLivre(i, j));
-					if (posicaoLivre(i, j)) {
+				while (auxQuantidadeLixeiras != 0) {
 						this.gerador = random.nextInt(tamanhoMatriz);
-						if (this.gerador > posicaoDir) {
-							this.matriz[this.gerador][posicaoDir] = LIXEIRA;
-							auxQuantidadeLixeiras--;
-						} else if (this.gerador < posicaoEsq) {
-							this.matriz[this.gerador][posicaoEsq] = LIXEIRA;
-							auxQuantidadeLixeiras--;
-						}
-					}
+						System.out.println("gerador: " + this.gerador);
+						System.out.println("posicaoDir: " + posicaoDir);
+						System.out.println("posicaoLivre: " + posicaoLivre(this.gerador, posicaoDir));
+						this.matriz[this.gerador][this.gerador] = LIXEIRA;
+						auxQuantidadeLixeiras--;
+						break;
 				}
 			}
 		}
