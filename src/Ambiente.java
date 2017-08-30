@@ -10,8 +10,6 @@ public class Ambiente {
 
 	List<Agente> agentes;
 
-	private final String ANSI_CLS = "\u001b[2J";
-	private final String ANSI_HOME = "\u001b[H";
 	public static final char NULO = 'N';
 	public static final char SUJEIRA = 'S';
 	public static final char LIXEIRA = 'L';
@@ -51,7 +49,7 @@ public class Ambiente {
 		}
 
 		inserirParedes();
-		inserirLixeiras();
+		//inserirLixeiras();
 		inserirSujeiras();
 	}
 
@@ -62,16 +60,18 @@ public class Ambiente {
 		boolean bordaCimaPosicaoEsq = false;
 		boolean bordaBaixoPosicaoDir = false;
 		boolean bordaBaixoPosicaoEsq = false;
+
+		int divisao = (this.tamanhoMatriz - 1 ) / 3;
+
 		// auxiliares para adicionar as paredes
-		int posicaoDir = this.tamanhoMatriz - 4;
-		int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
+		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
+		int posicaoEsq = divisao;
 
-		for (int i = 0; i < tamanhoMatriz; i++) {
-			for (int j = 0; j < tamanhoMatriz; j++) {
+		for (int i = 0; i < this.tamanhoMatriz; i++) {
+			for (int j = 0; j < this.tamanhoMatriz; j++) {
 				if (i > 1 && i < this.tamanhoMatriz - 2) {
-
-					this.matriz[i][posicaoDir] = PAREDE;
 					this.matriz[i][posicaoEsq] = PAREDE;
+					this.matriz[i][posicaoDir] = PAREDE;
 
 					if (!bordaCimaPosicaoDir) {
 						this.matriz[i][posicaoDir + 1] = PAREDE;
@@ -150,16 +150,15 @@ public class Ambiente {
 			}
 			System.out.println();
 		}
+		System.out.println("\t");
 	}
 
 	/* Executa a simulacao dos agentes no ambiente */
 	public void simular() {
-		System.out.print(ANSI_CLS + ANSI_HOME);
 		while (true) {
 			print();
 			try {
 				Thread.sleep(500);
-				System.out.print(ANSI_CLS + ANSI_HOME);
 				System.out.flush();
 
 				for (Agente ag : agentes) {
