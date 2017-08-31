@@ -49,7 +49,7 @@ public class Ambiente {
 		}
 
 		inserirParedes();
-		//inserirLixeiras();
+		inserirLixeiras();
 		inserirSujeiras();
 	}
 
@@ -100,22 +100,16 @@ public class Ambiente {
 
 	// TODO: adicionar lixeiras randomicas considerando as paredes
 	public void inserirLixeiras() {
-		int posicaoDir = this.tamanhoMatriz - 4;
-		int posicaoEsq = (this.tamanhoMatriz - 1) - posicaoDir;
-		int auxQuantidadeLixeiras = this.quantidadeLixeiras;
-		boolean adicionou = false;
+		int divisao = (this.tamanhoMatriz - 1 ) / 3;
+		// auxiliares para adicionar as lixeiras
+		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
+		int posicaoEsq = divisao;
 
-		for (int i = 0; i < tamanhoMatriz; i++) {
-			for (int j = 0; j < tamanhoMatriz; j++) {
-				while (auxQuantidadeLixeiras != 0) {
-						this.gerador = random.nextInt(tamanhoMatriz);
-						System.out.println("gerador: " + this.gerador);
-						System.out.println("posicaoDir: " + posicaoDir);
-						System.out.println("posicaoLivre: " + posicaoLivre(this.gerador, posicaoDir));
-						this.matriz[this.gerador][this.gerador] = LIXEIRA;
-						auxQuantidadeLixeiras--;
-						break;
-				}
+		while(this.quantidadeLixeiras > 0){
+			int posicao = random.nextInt(this.tamanhoMatriz);;
+			if(posicao > divisao && posicao < (divisao*2)) {
+				this.matriz[posicao][posicao] = LIXEIRA;
+				this.quantidadeLixeiras = this.quantidadeLixeiras - 1;
 			}
 		}
 	}
