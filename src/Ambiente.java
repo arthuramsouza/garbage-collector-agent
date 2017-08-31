@@ -42,8 +42,12 @@ public class Ambiente {
         matriz[i][j] = LIMPO;
 
     matriz[4][0] = RECARGA;
-    matriz[2][0] = LIXEIRA;
-    matriz[4][9] = RECARGA;
+    matriz[2][3] = LIXEIRA;
+    matriz[2][9] = LIXEIRA;
+    matriz[3][9] = LIXEIRA;
+    matriz[4][8] = RECARGA;
+    matriz[4][9] = LIXEIRA;
+    matriz[4][10] = RECARGA;
 
     inserirParedes();
     inserirLixeiras();
@@ -105,7 +109,7 @@ public class Ambiente {
     while(true) {
       print();
       try {
-        Thread.sleep(500);
+        Thread.sleep(300);
         System.out.print(ANSI_CLS + ANSI_HOME);
         System.out.flush();
 
@@ -132,7 +136,7 @@ public class Ambiente {
           else
             baixo = matriz[ag.getY() + 1][ag.getX()];
 
-          ag.atualizar(atual, esq, dir, cima, baixo);
+          ag.atualizar(atual, esq, dir, cima, baixo, tamanho);
         }
 
       } catch(Exception e) {
