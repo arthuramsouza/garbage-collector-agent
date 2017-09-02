@@ -224,7 +224,7 @@ public class Ambiente {
 					else
 						baixo = matriz[ag.getY() + 1][ag.getX()];
 
-					ag.atualizar(atual, esq, dir, cima, baixo);
+					ag.atualizar(atual, esq, dir, cima, baixo, this.tamanhoMatriz);
 				}
 
 			} catch (Exception e) {
