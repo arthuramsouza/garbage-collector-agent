@@ -61,7 +61,7 @@ public class Ambiente {
 		boolean bordaBaixoPosicaoDir = false;
 		boolean bordaBaixoPosicaoEsq = false;
 
-		int divisao = (this.tamanhoMatriz - 1 ) / 3;
+		int divisao = this.tamanhoMatriz/ 3;
 
 		// auxiliares para adicionar as paredes
 		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
@@ -69,7 +69,7 @@ public class Ambiente {
 
 		for (int i = 0; i < this.tamanhoMatriz; i++) {
 			for (int j = 0; j < this.tamanhoMatriz; j++) {
-				if (i > 1 && i < this.tamanhoMatriz - 2) {
+				if (i > (divisao-1) && i < (divisao+divisao)) {
 					this.matriz[i][posicaoEsq] = PAREDE;
 					this.matriz[i][posicaoDir] = PAREDE;
 
@@ -82,13 +82,13 @@ public class Ambiente {
 						bordaCimaPosicaoEsq = true;
 					}
 					if (!bordaBaixoPosicaoDir) {
-						if (i == (this.tamanhoMatriz - 2) - 1) {
+						if (i == (divisao+divisao)-1) {
 							this.matriz[i][posicaoDir + 1] = PAREDE;
 							bordaBaixoPosicaoDir = true;
 						}
 					}
 					if (!bordaBaixoPosicaoEsq) {
-						if (i == (this.tamanhoMatriz - 2) - 1) {
+						if (i == (divisao+divisao)-1) {
 							this.matriz[i][posicaoEsq - 1] = PAREDE;
 							bordaBaixoPosicaoEsq = true;
 						}
@@ -105,12 +105,20 @@ public class Ambiente {
 		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
 		int posicaoEsq = divisao;
 
-		while(this.quantidadeLixeiras > 0){
+		int cont = 0;
+		while(this.quantidadeLixeiras > 0 && cont < this.tamanhoMatriz){
 			int posicao = random.nextInt(this.tamanhoMatriz);;
-			if(posicao > divisao && posicao < (divisao*2)) {
-				this.matriz[posicao][posicao] = LIXEIRA;
-				this.quantidadeLixeiras = this.quantidadeLixeiras - 1;
+			// verificando a posicao onde é permitido adicionar 
+			if (cont > (divisao-1) && cont < (divisao+divisao)) {
+				if(posicao > divisao && posicao < (divisao+divisao)-1) {
+					if(posicaoLivre(cont, posicao)) {
+						System.out.println("posicao: " + posicao);
+						this.matriz[cont][posicao] = LIXEIRA;
+						this.quantidadeLixeiras = this.quantidadeLixeiras - 1;
+					}
+				}
 			}
+			cont++;
 		}
 	}
 
@@ -120,7 +128,7 @@ public class Ambiente {
 	}
 
 	public boolean posicaoLivre(int i, int j) {
-		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA;
+		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA && this.matriz[i][j] != LIXEIRA;
 	}
 
 	/* Insere agente no ambiente */
