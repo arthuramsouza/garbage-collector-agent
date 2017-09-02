@@ -11,7 +11,7 @@ public class Ambiente {
 	List<Agente> agentes;
 
 	public static final char NULO = 'N';
-	public static final char SUJEIRA = 'S';
+	public static final char SUJEIRA = 's';
 	public static final char LIXEIRA = 'L';
 	public static final char RECARGA = 'R';
 	public static final char PAREDE = 'P';
@@ -30,16 +30,6 @@ public class Ambiente {
 		carregar();
 	}
 
-	/*
-	 * TODO Coloca elementos (lixeiras, lixo e carregadores) de forma randomica
-	 * no ambiente
-	 */
-	private void carregar(int n_lixeiras, int n_carregadores, int n_lixo) {
-		for (int i = 0; i < tamanhoMatriz; i++)
-			for (int j = 0; j < tamanhoMatriz; j++)
-				matriz[i][j] = LIMPO;
-	}
-
 	/* Coloca elementos no ambiente - estatico */
 	private void carregar() {
 		for (int i = 0; i < tamanhoMatriz; i++) {
@@ -49,9 +39,9 @@ public class Ambiente {
 		}
 
 		inserirParedes();
-		//inserirLixeiras();
-		//inserirRecargas();
-		//inserirSujeiras();
+		inserirLixeiras();
+		inserirRecargas();
+		inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -67,7 +57,7 @@ public class Ambiente {
 		int fim = this.tamanhoMatriz - (divisao / 2);
 
 		// auxiliares para adicionar as paredes
-		int posicaoEsq = divisao-1;
+		int posicaoEsq = divisao - 1;
 		int posicaoDir = this.tamanhoMatriz - divisao;
 
 		for (int i = inicio; i < fim; i++) {
@@ -97,13 +87,13 @@ public class Ambiente {
 		}
 	}
 
-	// TODO: adicionar lixeiras randomicas considerando as paredes
+	/* Adiciona Lixeiras ao ambiente */
 	public void inserirLixeiras() {
 		int divisao = this.tamanhoMatriz / 3;
 		int inicio = (divisao / 2);
 		int fim = this.tamanhoMatriz - (divisao / 2);
 
-		int posicaoEsq = divisao-1;
+		int posicaoEsq = divisao - 1;
 		int posicaoDir = this.tamanhoMatriz - divisao;
 
 		while (this.quantidadeLixeiras > 0) {
@@ -122,12 +112,13 @@ public class Ambiente {
 		}
 	}
 
+	/* Adiciona Lixeiras ao ambiente */
 	public void inserirRecargas() {
 		int divisao = this.tamanhoMatriz / 3;
 		int inicio = (divisao / 2);
 		int fim = this.tamanhoMatriz - (divisao / 2);
 
-		int posicaoEsq = divisao-1;
+		int posicaoEsq = divisao - 1;
 		int posicaoDir = this.tamanhoMatriz - divisao;
 
 		while (this.quantidadeRecargas > 0) {
@@ -146,14 +137,35 @@ public class Ambiente {
 		}
 	}
 
-	// TODO: adicionar sujeiras randomicas considerando as paredes
+	/* Adiciona sujeiras ao ambiente */
 	public void inserirSujeiras() {
+		int quantidade = 0;
+		double percentual1 = this.tamanhoMatriz + ((40 / 100) * this.tamanhoMatriz);
+		double percentual2 = this.tamanhoMatriz + ((80 / 100) * this.tamanhoMatriz);
+		
+		int numero = random.nextInt(this.tamanhoMatriz);
+		
+		while (numero < percentual1 && numero > percentual2) {
+			numero = random.nextInt(this.tamanhoMatriz);
+		}
 
+		quantidade = numero;
+		
+		while (quantidade > 0) {
+			int posicaoLinha = random.nextInt(this.tamanhoMatriz);
+			int posicaoColuna = random.nextInt(this.tamanhoMatriz);
+
+			if (posicaoLivre(posicaoLinha, posicaoColuna)) {
+				this.matriz[posicaoLinha][posicaoColuna] = SUJEIRA;
+				quantidade--;
+				continue;
+			}
+		}
 	}
 
+	/* Verifica posições livres */
 	public boolean posicaoLivre(int i, int j) {
-		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA
-				&& this.matriz[i][j] != LIXEIRA;
+		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA && this.matriz[i][j] != LIXEIRA;
 	}
 
 	/* Insere agente no ambiente */
