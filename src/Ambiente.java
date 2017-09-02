@@ -197,7 +197,7 @@ public class Ambiente {
 		while (true) {
 			print();
 			try {
-				Thread.sleep(500);
+				Thread.sleep(300);
 				System.out.flush();
 
 				for (Agente ag : agentes) {
