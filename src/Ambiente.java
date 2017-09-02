@@ -49,8 +49,8 @@ public class Ambiente {
 		}
 
 		inserirParedes();
-		inserirLixeiras();
-		inserirSujeiras();
+		// inserirLixeiras();
+		// inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -61,38 +61,37 @@ public class Ambiente {
 		boolean bordaBaixoPosicaoDir = false;
 		boolean bordaBaixoPosicaoEsq = false;
 
-		int divisao = this.tamanhoMatriz/ 3;
+		int divisao = this.tamanhoMatriz / 3;
+		int tamanho = this.tamanhoMatriz - (divisao / 2);
 
 		// auxiliares para adicionar as paredes
-		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
-		int posicaoEsq = divisao;
+		int posicaoEsq = divisao - 1;
+		int posicaoDir = divisao + divisao;
+		System.out.println("posicaoEsq: " + posicaoEsq);
+		System.out.println("posicaoDir: " + posicaoDir);
 
-		for (int i = 0; i < this.tamanhoMatriz; i++) {
-			for (int j = 0; j < this.tamanhoMatriz; j++) {
-				if (i > (divisao-1) && i < (divisao+divisao)) {
-					this.matriz[i][posicaoEsq] = PAREDE;
-					this.matriz[i][posicaoDir] = PAREDE;
+		for (int i = (divisao / 2); i < tamanho; i++) {
+			this.matriz[i][posicaoEsq] = PAREDE;
+			this.matriz[i][posicaoDir] = PAREDE;
 
-					if (!bordaCimaPosicaoDir) {
-						this.matriz[i][posicaoDir + 1] = PAREDE;
-						bordaCimaPosicaoDir = true;
-					}
-					if (!bordaCimaPosicaoEsq) {
-						this.matriz[i][posicaoEsq - 1] = PAREDE;
-						bordaCimaPosicaoEsq = true;
-					}
-					if (!bordaBaixoPosicaoDir) {
-						if (i == (divisao+divisao)-1) {
-							this.matriz[i][posicaoDir + 1] = PAREDE;
-							bordaBaixoPosicaoDir = true;
-						}
-					}
-					if (!bordaBaixoPosicaoEsq) {
-						if (i == (divisao+divisao)-1) {
-							this.matriz[i][posicaoEsq - 1] = PAREDE;
-							bordaBaixoPosicaoEsq = true;
-						}
-					}
+			if (!bordaCimaPosicaoDir) {
+				this.matriz[i][posicaoDir + 1] = PAREDE;
+				bordaCimaPosicaoDir = true;
+			}
+			if (!bordaCimaPosicaoEsq) {
+				this.matriz[i][posicaoEsq - 1] = PAREDE;
+				bordaCimaPosicaoEsq = true;
+			}
+			if (!bordaBaixoPosicaoDir) {
+				if (i == tamanho - 1) {
+					this.matriz[i][posicaoDir + 1] = PAREDE;
+					bordaBaixoPosicaoDir = true;
+				}
+			}
+			if (!bordaBaixoPosicaoEsq) {
+				if (i == tamanho - 1) {
+					this.matriz[i][posicaoEsq - 1] = PAREDE;
+					bordaBaixoPosicaoEsq = true;
 				}
 			}
 		}
@@ -100,18 +99,19 @@ public class Ambiente {
 
 	// TODO: adicionar lixeiras randomicas considerando as paredes
 	public void inserirLixeiras() {
-		int divisao = (this.tamanhoMatriz - 1 ) / 3;
+		int divisao = (this.tamanhoMatriz - 1) / 3;
 		// auxiliares para adicionar as lixeiras
 		int posicaoDir = (this.tamanhoMatriz - 1) - divisao;
 		int posicaoEsq = divisao;
 
 		int cont = 0;
-		while(this.quantidadeLixeiras > 0 && cont < this.tamanhoMatriz){
-			int posicao = random.nextInt(this.tamanhoMatriz);;
-			// verificando a posicao onde é permitido adicionar 
-			if (cont > (divisao-1) && cont < (divisao+divisao)) {
-				if(posicao > divisao && posicao < (divisao+divisao)-1) {
-					if(posicaoLivre(cont, posicao)) {
+		while (this.quantidadeLixeiras > 0 && cont < this.tamanhoMatriz) {
+			int posicao = random.nextInt(this.tamanhoMatriz);
+			;
+			// verificando a posicao onde é permitido adicionar
+			if (cont > (divisao - 1) && cont < (divisao + divisao)) {
+				if (posicao > divisao && posicao < (divisao + divisao) - 1) {
+					if (posicaoLivre(cont, posicao)) {
 						System.out.println("posicao: " + posicao);
 						this.matriz[cont][posicao] = LIXEIRA;
 						this.quantidadeLixeiras = this.quantidadeLixeiras - 1;
