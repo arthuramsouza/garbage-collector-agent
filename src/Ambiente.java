@@ -102,7 +102,7 @@ public class Ambiente {
 
 			if (posicaoLinha > inicio && posicaoLinha < fim - 1) {
 				if (posicaoColuna < posicaoEsq || posicaoColuna > posicaoDir) {
-					if (posicaoLivre(posicaoLinha, posicaoColuna)) {
+					if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
 						this.matriz[posicaoLinha][posicaoColuna] = LIXEIRA;
 						this.quantidadeLixeiras--;
 						continue;
@@ -112,7 +112,7 @@ public class Ambiente {
 		}
 	}
 
-	/* Adiciona Lixeiras ao ambiente */
+	/* Adiciona recargas ao ambiente */
 	public void inserirRecargas() {
 		int divisao = this.tamanhoMatriz / 3;
 		int inicio = (divisao / 2);
@@ -127,7 +127,7 @@ public class Ambiente {
 
 			if (posicaoLinha > inicio && posicaoLinha < fim - 1) {
 				if (posicaoColuna < posicaoEsq || posicaoColuna > posicaoDir) {
-					if (posicaoLivre(posicaoLinha, posicaoColuna)) {
+					if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
 						this.matriz[posicaoLinha][posicaoColuna] = RECARGA;
 						this.quantidadeRecargas--;
 						continue;
@@ -166,6 +166,16 @@ public class Ambiente {
 	/* Verifica posições livres */
 	public boolean posicaoLivre(int i, int j) {
 		return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA && this.matriz[i][j] != LIXEIRA;
+	}
+
+	/* Verifica se a posição é valida, ou seja, paredes ou bordas ao lado para adicionar lixeiras e pontos de recargas */
+	public boolean posicaoValida(int posicaoLinha, int posicaoColuna) {
+		if((posicaoColuna+1) > this.tamanhoMatriz-1 || (posicaoColuna-1) < 0)
+		 	return true;
+		if(this.matriz[posicaoLinha][posicaoColuna+1] == PAREDE || this.matriz[posicaoLinha][posicaoColuna-1] == PAREDE)
+			return true;		
+		else 
+			return false;
 	}
 
 	/* Insere agente no ambiente */
