@@ -1,16 +1,34 @@
+import java.util.List;
+import java.util.ArrayList;
+
 public class Agente {
- private int px, py; // Posicao do agente
+ private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
  private char direcao; // Direcao de varredura {d, e}
  private int estado;
  private int lastLine;
  private int lastColumn;
  private boolean urgencia;
+ private char lastMove;
+
+ public static final char UP_LEFT = 0;
+ public static final char UP = 1;
+ public static final char UP_RIGHT = 2;
+ public static final char LEFT = 3;
+ public static final char AGENTE = 4;
+ public static final char RIGHT = 5;
+ public static final char DOWN_LEFT = 6;
+ public static final char DOWN = 7;
+ public static final char DOWN_RIGHT = 8;
+
+ public static final char DIREITA = 'd';
+ public static final char ESQUERDA = 'e';
 
  /* Construtor */
  public Agente(int px, int py, char direcao, int estado) {
   this.px = px;
   this.py = py;
   this.direcao = direcao;
+  this.currentLine = py;
   this.estado = estado;
   this.lastLine = 0;
   this.urgencia = false;
@@ -23,6 +41,21 @@ public class Agente {
   return py;
  }
 
+ private void mover(char direcao) {
+   switch(direcao) {
+     case UP_LEFT : px--; py--; break;
+     case UP : py--; break;
+     case UP_RIGHT : px++; py--; break;
+     case LEFT : px--; break;
+     case RIGHT : px++; break;
+     case DOWN_LEFT : px--; py++; break;
+     case DOWN : py++; break;
+     case DOWN_RIGHT : px++; py++; break;
+
+   }
+ }
+
+
  /*
  Algoritmo A*
  */
@@ -30,15 +63,13 @@ public class Agente {
 
  }
 
-
- public void recarregar() {
-
+ private boolean isValidMove(char celula) {
+   if(celula == Ambiente.PAREDE || celula == Ambiente.NULO ||
+   celula == Ambiente.LIXEIRA || celula == Ambiente.RECARGA) {
+     return false;
+   }
+   return true;
  }
-
- public void aspirar() {
-
- }
-
 
 
  /* Atualiza estado do agente com base no valor das adjacencias
@@ -48,114 +79,22 @@ public class Agente {
    3 4 5
    6 7 8
  */
- public void atualizar(char atual, char esq, char dir, char cima, char baixo, int tamanho) {
+ public void atualizar(char entorno[]) {
+   printEntorno(entorno);
 
-  if (px == tamanho - 1 && py == tamanho - 1)
-   System.out.println("BYE BYE");
+   char pref_move = direcao == DIREITA ? Agente.RIGHT : Agente.LEFT;
 
-  log(px, py, urgencia, direcao, lastColumn, lastLine); 
-
-  if (direcao == 'e') {
-
-   if (urgencia) {
-
-    if ((lastColumn != px && py + 1 == lastLine) && py + 1 == lastLine && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-     py += 1;
-    } else if (py + 1 < lastLine && px != lastColumn && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-     py += 1;
-    } else if (esq != Ambiente.NULO && esq != Ambiente.RECARGA && esq != Ambiente.LIXEIRA && esq != Ambiente.PAREDE) {
-     px -= 1;
-    } else if (esq == Ambiente.NULO) {
-     direcao = 'e';
-
-    } else if (esq == Ambiente.RECARGA || esq == Ambiente.LIXEIRA || esq == Ambiente.PAREDE) {
-     if (cima != Ambiente.RECARGA && cima != Ambiente.LIXEIRA && cima != Ambiente.PAREDE) {
-      py -= 1;
-      lastColumn = px;
-     } else if (dir != Ambiente.RECARGA && dir != Ambiente.LIXEIRA && dir != Ambiente.PAREDE) {
-      px += 1;
-      lastColumn = px;
-     } else {
-      py += 1;
-      direcao = 'd';
+   if(isValidMove(entorno[pref_move])) {
+     mover(pref_move);
+   } else if(entorno[pref_move] == Ambiente.NULO) { // borda da matriz
+     if(isValidMove(entorno[Agente.DOWN])) {
+       mover(Agente.DOWN);
+       direcao = direcao == DIREITA ? ESQUERDA : DIREITA;
      }
-    }
-    if (py == lastLine)
-     urgencia = false;
-   } else {
-    if (esq == Ambiente.NULO) {
-     if (baixo == Ambiente.NULO)
-      System.out.println("FIM");
-     else if (baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-      py += 1;
-      direcao = 'd';
-     } else {
-      lastColumn = px;
-      urgencia = true;
-      direcao = 'd';
-      lastLine = py + 1;
-     }
-    } else if (esq != Ambiente.RECARGA && esq != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-     px -= 1;
-    } else {
-     lastColumn = px;
-     urgencia = true;
-     lastLine = py;
-    }
    }
-  } else if (direcao == 'd') {
-
-   if (urgencia) {
-
-    if ((lastColumn != px && py + 1 == lastLine) && py + 1 == lastLine && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-     py += 1;
-    } else if (py + 1 < lastLine && px != lastColumn && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-     py += 1;
-    } else if (dir != Ambiente.NULO && dir != Ambiente.RECARGA && dir != Ambiente.LIXEIRA && dir != Ambiente.PAREDE)
-     px += 1;
-
-    else if (dir == Ambiente.NULO) {
-     direcao = 'e';
-
-    } else if (dir == Ambiente.RECARGA || dir == Ambiente.LIXEIRA || dir == Ambiente.PAREDE) {
-     if (cima != Ambiente.RECARGA && cima != Ambiente.LIXEIRA && cima != Ambiente.PAREDE) {
-      py -= 1;
-      lastColumn = px;
-     } else if (esq != Ambiente.RECARGA && esq != Ambiente.LIXEIRA && esq != Ambiente.PAREDE) {
-      px -= 1;
-     } else
-      py += 1;
-
-    }
-
-    if (py == lastLine)
-     urgencia = false;
-   } else {
-    if (dir == Ambiente.NULO) {
-     if (baixo == Ambiente.NULO)
-      System.out.println("FIM");
-     else if (baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
-      py += 1;
-      direcao = 'e';
-     } else {
-      lastColumn = px;
-      urgencia = true;
-      direcao = 'e';
-      lastLine = py + 1;
-     }
-    } else if (dir != Ambiente.RECARGA && dir != Ambiente.LIXEIRA && dir != Ambiente.PAREDE)
-     px += 1;
-    else {
-     lastColumn = px;
-     urgencia = true;
-     lastLine = py;
-
-    }
-   }
-  }
  }
 
- public void log(int px, int py, boolean urgencia, char direcao, int lastColumn, int lastLine) {
+ private void log(int px, int py, boolean urgencia, char direcao, int lastColumn, int lastLine) {
     System.out.println("------------------------------------------------");
     System.out.println("urgencia = " + urgencia);
     System.out.println("direcao = " + direcao);
@@ -166,4 +105,9 @@ public class Agente {
     System.out.println("------------------------------------------------");
  }
 
+ private void printEntorno(char entorno[]) {
+     System.out.print(entorno[Agente.UP_LEFT] + " " + entorno[Agente.UP] + " " + entorno[Agente.UP_RIGHT] + "\n" +
+                      entorno[Agente.LEFT] + " " + entorno[Agente.AGENTE] + " " + entorno[Agente.RIGHT] + "\n" +
+                      entorno[Agente.DOWN_LEFT] + " " + entorno[Agente.DOWN] + " " + entorno[Agente.DOWN_RIGHT] + "\n");
+   }
 }

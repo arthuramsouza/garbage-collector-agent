@@ -38,10 +38,12 @@ public class Ambiente {
 			}
 		}
 
+		/*
 		inserirParedes();
 		inserirLixeiras();
 		inserirRecargas();
 		inserirSujeiras();
+		*/
 	}
 
 	/* Insere paredes no ambiente */
@@ -142,15 +144,15 @@ public class Ambiente {
 		int quantidade = 0;
 		double percentual1 = this.tamanhoMatriz + ((40 / 100) * this.tamanhoMatriz);
 		double percentual2 = this.tamanhoMatriz + ((80 / 100) * this.tamanhoMatriz);
-		
+
 		int numero = random.nextInt(this.tamanhoMatriz);
-		
+
 		while (numero < percentual1 && numero > percentual2) {
 			numero = random.nextInt(this.tamanhoMatriz);
 		}
 
 		quantidade = numero;
-		
+
 		while (quantidade > 0) {
 			int posicaoLinha = random.nextInt(this.tamanhoMatriz);
 			int posicaoColuna = random.nextInt(this.tamanhoMatriz);
@@ -173,8 +175,8 @@ public class Ambiente {
 		if((posicaoColuna+1) > this.tamanhoMatriz-1 || (posicaoColuna-1) < 0)
 		 	return true;
 		if(this.matriz[posicaoLinha][posicaoColuna+1] == PAREDE || this.matriz[posicaoLinha][posicaoColuna-1] == PAREDE)
-			return true;		
-		else 
+			return true;
+		else
 			return false;
 	}
 
@@ -205,36 +207,77 @@ public class Ambiente {
 	/* Executa a simulacao dos agentes no ambiente */
 	public void simular() {
 		while (true) {
-			print();
 			try {
-				Thread.sleep(300);
+				print();
+				Thread.sleep(150);
 				System.out.flush();
 
 				for (Agente ag : agentes) {
-					char atual, esq, dir, cima, baixo;
-					atual = matriz[ag.getY()][ag.getX()];
+					// Percepcoes do agente em relacao ao ambiente
+					char[] entorno = new char[9];
 
-					if ((ag.getX() - 1) < 0)
-						esq = NULO;
-					else
-						esq = matriz[ag.getY()][ag.getX() - 1];
+					for(int i = 0; i < 9; i++)
+						entorno[i] = NULO;
 
-					if ((ag.getX() + 1) >= tamanhoMatriz)
-						dir = NULO;
-					else
-						dir = matriz[ag.getY()][ag.getX() + 1];
+					// Posicao corrente do agente (centro da matriz)
+					entorno[Agente.AGENTE] = matriz[ag.getX()][ag.getY()];
 
-					if ((ag.getY() - 1) < 0)
-						cima = NULO;
-					else
-						cima = matriz[ag.getY() - 1][ag.getX()];
+					if(ag.getX() > 0 && ag.getX() < tamanhoMatriz - 1) {
+						entorno[Agente.LEFT] = matriz[ag.getX() - 1][ag.getY()];
+						entorno[Agente.RIGHT] = matriz[ag.getX() + 1][ag.getY()];
 
-					if ((ag.getY() + 1) >= tamanhoMatriz)
-						baixo = NULO;
-					else
-						baixo = matriz[ag.getY() + 1][ag.getX()];
+						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
+							entorno[Agente.UP_LEFT] = matriz[ag.getX() - 1][ag.getY() - 1];
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+							entorno[Agente.UP_RIGHT] = matriz[ag.getX() + 1][ag.getY() - 1];
 
-					ag.atualizar(atual, esq, dir, cima, baixo, this.tamanhoMatriz);
+							entorno[Agente.DOWN_LEFT] = matriz[ag.getX() - 1][ag.getY() + 1];
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+							entorno[Agente.DOWN_RIGHT] = matriz[ag.getX() + 1][ag.getY() + 1];
+						} else if(ag.getY() == 0) { // Primeira linha
+							entorno[Agente.DOWN_LEFT] = matriz[ag.getX() - 1][ag.getY() + 1];
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+							entorno[Agente.DOWN_RIGHT] = matriz[ag.getX() + 1][ag.getY() + 1];
+						} else { // Ultima linha
+							entorno[Agente.UP_LEFT] = matriz[ag.getX() - 1][ag.getY() - 1];
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+							entorno[Agente.UP_RIGHT] = matriz[ag.getX() + 1][ag.getY() - 1];
+						}
+					} else if(ag.getX() == 0) { // Primeira coluna
+						entorno[Agente.RIGHT] = matriz[ag.getX() + 1][ag.getY()];
+
+						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+							entorno[Agente.UP_RIGHT] = matriz[ag.getX() + 1][ag.getY() - 1];
+
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+							entorno[Agente.DOWN_RIGHT] = matriz[ag.getX() + 1][ag.getY() + 1];
+						} else if(ag.getY() == 0) { // Primeira linha
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+							entorno[Agente.DOWN_RIGHT] = matriz[ag.getX() + 1][ag.getY() + 1];
+						} else { // Ultima linha
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+							entorno[Agente.UP_RIGHT] = matriz[ag.getX() + 1][ag.getY() - 1];
+						}
+					} else { // Ultima coluna
+						entorno[Agente.LEFT] = matriz[ag.getX() - 1][ag.getY()];
+
+						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
+							entorno[Agente.UP_LEFT] = matriz[ag.getX() - 1][ag.getY() - 1];
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+
+							entorno[Agente.DOWN_LEFT] = matriz[ag.getX() - 1][ag.getY() + 1];
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+						} else if(ag.getY() == 0) { // Primeira linha
+							entorno[Agente.DOWN] = matriz[ag.getX()][ag.getY() + 1];
+							entorno[Agente.DOWN_LEFT] = matriz[ag.getX() - 1][ag.getY() + 1];
+						} else { // Ultima linha
+							entorno[Agente.UP] = matriz[ag.getX()][ag.getY() - 1];
+							entorno[Agente.UP_LEFT] = matriz[ag.getX() - 1][ag.getY() - 1];
+						}
+					}
+
+					ag.atualizar(entorno);
 				}
 
 			} catch (Exception e) {
