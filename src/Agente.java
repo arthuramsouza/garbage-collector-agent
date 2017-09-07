@@ -1,14 +1,6 @@
-import java.util.List;
-import java.util.ArrayList;
-
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
- private char direcao; // Direcao de varredura {d, e}
- private int estado;
- private int lastLine;
- private int lastColumn;
- private boolean urgencia;
- private char lastMove;
+ private char direcao, lastMove; // Direcao de varredura {d, e}
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -29,9 +21,6 @@ public class Agente {
   this.py = py;
   this.direcao = direcao;
   this.currentLine = py;
-  this.estado = estado;
-  this.lastLine = 0;
-  this.urgencia = false;
  }
 
  public int getX() {
@@ -51,7 +40,6 @@ public class Agente {
      case DOWN_LEFT : px--; py++; break;
      case DOWN : py++; break;
      case DOWN_RIGHT : px++; py++; break;
-
    }
  }
 
@@ -80,30 +68,58 @@ public class Agente {
    6 7 8
  */
  public void atualizar(char entorno[]) {
-   printEntorno(entorno);
+   char prefMove = (direcao == DIREITA) ? Agente.RIGHT : Agente.LEFT;
+   char noPrefMove = (direcao == DIREITA) ? Agente.LEFT : Agente.RIGHT;
 
-   char pref_move = direcao == DIREITA ? Agente.RIGHT : Agente.LEFT;
-
-   if(isValidMove(entorno[pref_move])) {
-     mover(pref_move);
-   } else if(entorno[pref_move] == Ambiente.NULO) { // borda da matriz
-     if(isValidMove(entorno[Agente.DOWN])) {
+   if(currentLine == py) { // esta na linha que esta limpando
+     if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
+       lastMove = prefMove;
+       mover(prefMove);
+     } else if(entorno[prefMove] == Ambiente.NULO) { // bordas da matriz
+       if(isValidMove(entorno[Agente.DOWN])) {
+         lastMove = Agente.DOWN;
+         mover(Agente.DOWN);
+         direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
+         currentLine++;
+       }
+     } else if(isValidMove(entorno[Agente.UP]) && lastMove != Agente.DOWN) {
+          lastMove = Agente.UP;
+          mover(Agente.UP);
+      } else if(isValidMove(entorno[noPrefMove])) {
+        System.out.println("Aqui");
+        lastMove = noPrefMove;
+        mover(noPrefMove);
+      }
+   } else { // tentando voltar para currentLine
+     if(isValidMove(entorno[Agente.DOWN]) && lastMove != Agente.UP) {
+       lastMove = Agente.DOWN;
        mover(Agente.DOWN);
-       direcao = direcao == DIREITA ? ESQUERDA : DIREITA;
+     } else if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
+       lastMove = prefMove;
+       mover(prefMove);
+     } else if(isValidMove(entorno[Agente.UP]) && lastMove != Agente.DOWN) {
+       lastMove = Agente.UP;
+       mover(Agente.UP);
+     } else if(isValidMove(entorno[noPrefMove]) && lastMove != prefMove) {
+       lastMove = noPrefMove;
+       mover(noPrefMove);
      }
    }
+
+   printEntorno(entorno);
+   log();
  }
 
- private void log(int px, int py, boolean urgencia, char direcao, int lastColumn, int lastLine) {
+
+ private void log() {
     System.out.println("------------------------------------------------");
-    System.out.println("urgencia = " + urgencia);
     System.out.println("direcao = " + direcao);
     System.out.println("px = " + px);
     System.out.println("py = " + py);
-    System.out.println("lastColumn = " + lastColumn);
-    System.out.println("lastLine = " + lastLine);
+    System.out.println("currentLine = " + currentLine);
     System.out.println("------------------------------------------------");
  }
+
 
  private void printEntorno(char entorno[]) {
      System.out.print(entorno[Agente.UP_LEFT] + " " + entorno[Agente.UP] + " " + entorno[Agente.UP_RIGHT] + "\n" +
