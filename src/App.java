@@ -2,8 +2,27 @@
 public class App {
 
     public static void main(String[] args) {
-        Ambiente ambiente = new Ambiente(Integer.parseInt(args[0]), 3, 3);
-        ambiente.inserirAgente(new Agente(0, 0, 'd', 0, ambiente));
-        ambiente.simular();
+        int tamanhoDaMatriz = Integer.parseInt(args[0]);
+        int quantidadeDeLixeiras = 3;
+        int quantidadeDeRecargas = 3;
+
+        Ambiente ambiente = new Ambiente(tamanhoDaMatriz, quantidadeDeLixeiras,
+                quantidadeDeRecargas);
+
+        int xInicial = 0;
+        int yInicial = 0;
+        char direcaoInicial = 'd';
+        int estadoInicial = 0;
+        int capacidadeDeColeta = 15;
+        int capacidadeDeEnergia = 100;
+
+        ambiente.imprimirCoordenadasDasLixeiras();
+        ambiente.imprimirCoordenadasDasRecargas();
+
+        Agente agente = new Agente(xInicial, yInicial, direcaoInicial,
+                estadoInicial, ambiente, capacidadeDeColeta, capacidadeDeEnergia);
+
+        ambiente.inserirAgente(agente);
+        ambiente.simular2();
     }
 }
