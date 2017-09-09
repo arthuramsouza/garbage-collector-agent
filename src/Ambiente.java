@@ -218,24 +218,6 @@ public class Ambiente {
         System.out.println("\t");
     }
 
-    /* Imprime o estado atual do ambiente com seus agentes */
-    public void print2() {
-        for (int i = 0; i < tamanhoMatriz; i++) {
-            for (int j = 0; j < tamanhoMatriz; j++) {
-                // Verifica se algum agente esta nesta Posicao
-                for (Agente ag : agentes) {
-                    if (ag.getX() == i && ag.getY() == j) {
-                        System.out.print("A ");
-                    } else {
-                        System.out.print(matriz[i][j] + " ");
-                    }
-                }
-            }
-            System.out.println();
-        }
-        System.out.println("\t");
-    }
-
     /* Executa a simulacao dos agentes no ambiente */
     public void simular() {
         boolean acabou = false;
