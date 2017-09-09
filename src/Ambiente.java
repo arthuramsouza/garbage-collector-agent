@@ -11,6 +11,8 @@ public class Ambiente {
     private char matriz[][];
 
     List<Agente> agentes;
+    List<Posicao> lixeiras;
+    List<Posicao> recargas;
 
     public static final char NULO = 'N';
     public static final char SUJEIRA = 'S';
@@ -25,6 +27,8 @@ public class Ambiente {
     /* Construtor da classe */
     public Ambiente(int tamanhoMatriz, int quantidadeLixeiras, int quantidadeRecargas) {
         agentes = new ArrayList<Agente>();
+        lixeiras = new ArrayList<Posicao>();
+        recargas = new ArrayList<Posicao>();
         this.tamanhoMatriz = tamanhoMatriz;
         this.quantidadeLixeiras = quantidadeLixeiras;
         this.quantidadeRecargas = quantidadeRecargas;
@@ -118,6 +122,7 @@ public class Ambiente {
                 if (posicaoColuna < posicaoEsq || posicaoColuna > posicaoDir) {
                     if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
                         this.matriz[posicaoLinha][posicaoColuna] = LIXEIRA;
+                        lixeiras.add(new Posicao(posicaoLinha, posicaoColuna));
                         this.quantidadeLixeiras--;
                         continue;
                     }
@@ -143,6 +148,7 @@ public class Ambiente {
                 if (posicaoColuna < posicaoEsq || posicaoColuna > posicaoDir) {
                     if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
                         this.matriz[posicaoLinha][posicaoColuna] = RECARGA;
+                        recargas.add(new Posicao(posicaoLinha, posicaoColuna));
                         this.quantidadeRecargas--;
                         continue;
                     }
@@ -256,7 +262,7 @@ public class Ambiente {
                         baixo = matriz[ag.getY() + 1][ag.getX()];
                     }
 
-                    acabou = ag.atualizar2(atual, esq, dir, cima, baixo, this.tamanhoMatriz);
+                    acabou = ag.atualizar2();
                     if (acabou == true) {
                         break;
                     }
@@ -272,5 +278,55 @@ public class Ambiente {
                 System.exit(1);
             }
         }
+    }
+
+    /* Executa a simulacao dos agentes no ambiente */
+    public void simular2() {
+        boolean acabou = false;
+
+        while (true) {
+            print();
+            try {
+                Thread.sleep(300);
+                System.out.flush();
+
+                for (Agente ag : agentes) {
+
+                    acabou = ag.atualizar2();
+                    if (acabou == true) {
+                        break;
+                    }
+                }
+
+                if (acabou == true) {
+                    System.out.println("SIMULACAO ENCERRADA!!!");
+                    break;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+    }
+
+    void imprimirCoordenadasDasLixeiras() {
+        System.out.println("coordenadas das lixeiras");
+
+        for (int i = 0; i < lixeiras.size(); i++) {
+            System.out.println("[ " + lixeiras.get(i).getX() + " , " + lixeiras.get(i).getY() + "]");
+        }
+
+        System.out.println();
+    }
+
+    void imprimirCoordenadasDasRecargas() {
+        System.out.println("coordenadas das recargas");
+
+        for (int i = 0; i < recargas.size(); i++) {
+            System.out.println("[ " + recargas.get(i).getX() + " , " + recargas.get(i).getY() + "]");
+        }
+
+        System.out.println();
     }
 }
