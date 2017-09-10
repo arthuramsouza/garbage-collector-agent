@@ -11,14 +11,13 @@ public class App {
 
         int xInicial = 0;
         int yInicial = 0;
-        char direcaoInicial = 'd';
+        char direcaoInicial = 'D';
         int estadoInicial = 0;
         int capacidadeDeColeta = 15;
         int capacidadeDeEnergia = 100;
 
-        ambiente.imprimirCoordenadasDasLixeiras();
-        ambiente.imprimirCoordenadasDasRecargas();
-
+        //ambiente.imprimirCoordenadasDasLixeiras();
+        //ambiente.imprimirCoordenadasDasRecargas();
         Agente agente = new Agente(xInicial, yInicial, direcaoInicial,
                 estadoInicial, ambiente, capacidadeDeColeta, capacidadeDeEnergia);
 
