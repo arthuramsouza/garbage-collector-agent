@@ -1,6 +1,11 @@
 
 public class Agente {
 
+    Posicao lixeiraMaisProxima;
+    int distanciaDaLixeiraMaisProxima;
+    Posicao recargaMaisProxima;
+    int distanciaDaRecargaMaisProxima;
+
     int capacidadeTotalDeEnergia;
     int energiaRestante;
     int capacidadeTotalDeLixo;
@@ -28,6 +33,10 @@ public class Agente {
     private char elementoObservadoNaDireitaDoAgente;
     private char elementoObservadoEmCimaDoAgente;
     private char elementoObservadoEmBaixoDoAgente;
+    private char elementoObservadoNaDiagonalEsquerdaSuperior;
+    private char elementoObservadoNaDiagonalEsquerdaInferior;
+    private char elementoObservadoNaDiagonalDireitaSuperior;
+    private char elementoObservadoNaDiagonalDireitaInferior;
 
     public static final char NULO = 'N';
     public static final char SUJEIRA = 'S';
@@ -36,10 +45,24 @@ public class Agente {
     public static final char PAREDE = 'P';
     public static final char LIMPO = '.';
 
+    public static final char DIREITA = 'D';
+    public static final char ESQUERDA = 'E';
+    public static final char ACIMA = 'C';
+    public static final char ABAIXO = 'B';
+    public static final char DIAGONALESQUERDASUPERIOR = 'Q';
+    public static final char DIAGONALESQUERDAINFERIOR = 'A';
+    public static final char DIAGONALDIREITASUPERIOR = 'W';
+    public static final char DIAGONALDIREITAINFERIOR = 'S';
+
     Agente agenteParaBACKUPDeDados;
 
     /* Construtor */
     public Agente(int px, int py, char direcao, int estado, Ambiente ambiente, int capacidadeLixo, int capacidadeEnergia) {
+
+        lixeiraMaisProxima = new Posicao();
+        distanciaDaLixeiraMaisProxima = 0;
+        recargaMaisProxima = new Posicao();
+        distanciaDaRecargaMaisProxima = 0;
 
         capacidadeTotalDeEnergia = capacidadeEnergia;
         energiaRestante = capacidadeTotalDeEnergia;
@@ -64,11 +87,15 @@ public class Agente {
 
         this.ambiente = ambiente;
 
-        elementoObservadoNaPosicaoDoAgente = 'N';
-        elementoObservadoNaEsquerdaDoAgente = 'N';
-        elementoObservadoNaDireitaDoAgente = 'N';
-        elementoObservadoEmCimaDoAgente = 'N';
-        elementoObservadoEmBaixoDoAgente = 'N';
+        elementoObservadoNaPosicaoDoAgente = NULO;
+        elementoObservadoNaEsquerdaDoAgente = NULO;
+        elementoObservadoNaDireitaDoAgente = NULO;
+        elementoObservadoEmCimaDoAgente = NULO;
+        elementoObservadoEmBaixoDoAgente = NULO;
+        elementoObservadoNaDiagonalEsquerdaSuperior = NULO;
+        elementoObservadoNaDiagonalEsquerdaInferior = NULO;
+        elementoObservadoNaDiagonalDireitaSuperior = NULO;
+        elementoObservadoNaDiagonalDireitaInferior = NULO;
 
         agenteParaBACKUPDeDados = new Agente();
     }
@@ -83,7 +110,7 @@ public class Agente {
 
         px = 0;
         py = 0;
-        direcao = 'd';
+        direcao = DIREITA;
         estado = 0;
         lastLine = 0;
         lastColumn = 0;
@@ -97,11 +124,11 @@ public class Agente {
         varrerPorColunas = false;
         varreduraCompletamenteConcluida = false;
 
-        elementoObservadoNaPosicaoDoAgente = 'N';
-        elementoObservadoNaEsquerdaDoAgente = 'N';
-        elementoObservadoNaDireitaDoAgente = 'N';
-        elementoObservadoEmCimaDoAgente = 'N';
-        elementoObservadoEmBaixoDoAgente = 'N';
+        elementoObservadoNaPosicaoDoAgente = NULO;
+        elementoObservadoNaEsquerdaDoAgente = NULO;
+        elementoObservadoNaDireitaDoAgente = NULO;
+        elementoObservadoEmCimaDoAgente = NULO;
+        elementoObservadoEmBaixoDoAgente = NULO;
     }
 
     public void salvarInformacoesDoAgente() {
@@ -136,6 +163,58 @@ public class Agente {
         this.varreduraPorLinhaNaDireitaConcluida = agenteParaBACKUPDeDados.varreduraPorLinhaNaDireitaConcluida;
         this.varrerPorColunas = agenteParaBACKUPDeDados.varrerPorColunas;
         this.varreduraCompletamenteConcluida = agenteParaBACKUPDeDados.varreduraCompletamenteConcluida;
+    }
+
+    public void solicitarDadosDaLixeiraMaisProxima() {
+        ambiente.lixeiraMaisProximaDoAgente(this);
+    }
+
+    public void solicitarDadosDaRecargaMaisProxima() {
+        ambiente.recargaMaisProximaDoAgente(this);
+    }
+
+    public void atualizarDadosDaLixeiraMaisProxima(int coordenadaX, int coordenadaY, int distancia) {
+        lixeiraMaisProxima.setX(coordenadaX);
+        lixeiraMaisProxima.setY(coordenadaY);
+        distanciaDaLixeiraMaisProxima = distancia;
+    }
+
+    public void atualizarDadosDaRecargaMaisProxima(int coordenadaX, int coordenadaY, int distancia) {
+        recargaMaisProxima.setX(coordenadaX);
+        recargaMaisProxima.setY(coordenadaY);
+        distanciaDaRecargaMaisProxima = distancia;
+    }
+
+    public Posicao getLixeiraMaisProxima() {
+        return lixeiraMaisProxima;
+    }
+
+    public void setLixeiraMaisProxima(Posicao lixeiraMaisProxima) {
+        this.lixeiraMaisProxima = lixeiraMaisProxima;
+    }
+
+    public int getDistanciaDaLixeiraMaisProxima() {
+        return distanciaDaLixeiraMaisProxima;
+    }
+
+    public void setDistanciaDaLixeiraMaisProxima(int distanciaDaLixeiraMaisProxima) {
+        this.distanciaDaLixeiraMaisProxima = distanciaDaLixeiraMaisProxima;
+    }
+
+    public Posicao getRecargaMaisProxima() {
+        return recargaMaisProxima;
+    }
+
+    public void setRecargaMaisProxima(Posicao recargaMaisProxima) {
+        this.recargaMaisProxima = recargaMaisProxima;
+    }
+
+    public int getDistanciaDaRecargaMaisProxima() {
+        return distanciaDaRecargaMaisProxima;
+    }
+
+    public void setDistanciaDaRecargaMaisProxima(int distanciaDaRecargaMaisProxima) {
+        this.distanciaDaRecargaMaisProxima = distanciaDaRecargaMaisProxima;
     }
 
     public int getCapacidadeTotalDeEnergia() {
@@ -208,6 +287,38 @@ public class Agente {
 
     public void setElementoObersvadoEmBaixo(char elementoObersvadoEmBaixo) {
         this.elementoObservadoEmBaixoDoAgente = elementoObersvadoEmBaixo;
+    }
+
+    public char getElementoObservadoNaDiagonalEsquerdaSuperior() {
+        return elementoObservadoNaDiagonalEsquerdaSuperior;
+    }
+
+    public void setElementoObservadoNaDiagonalEsquerdaSuperior(char elementoObservadoNaDiagonalEsquerdaSuperior) {
+        this.elementoObservadoNaDiagonalEsquerdaSuperior = elementoObservadoNaDiagonalEsquerdaSuperior;
+    }
+
+    public char getElementoObservadoNaDiagonalEsquerdaInferior() {
+        return elementoObservadoNaDiagonalEsquerdaInferior;
+    }
+
+    public void setElementoObservadoNaDiagonalEsquerdaInferior(char elementoObservadoNaDiagonalEsquerdaInferior) {
+        this.elementoObservadoNaDiagonalEsquerdaInferior = elementoObservadoNaDiagonalEsquerdaInferior;
+    }
+
+    public char getElementoObservadoNaDiagonalDireitaSuperior() {
+        return elementoObservadoNaDiagonalDireitaSuperior;
+    }
+
+    public void setElementoObservadoNaDiagonalDireitaSuperior(char elementoObservadoNaDiagonalDireitaSuperior) {
+        this.elementoObservadoNaDiagonalDireitaSuperior = elementoObservadoNaDiagonalDireitaSuperior;
+    }
+
+    public char getElementoObservadoNaDiagonalDireitaInferior() {
+        return elementoObservadoNaDiagonalDireitaInferior;
+    }
+
+    public void setElementoObservadoNaDiagonalDireitaInferior(char elementoObservadoNaDiagonalDireitaInferior) {
+        this.elementoObservadoNaDiagonalDireitaInferior = elementoObservadoNaDiagonalDireitaInferior;
     }
 
     public int getX() {
@@ -300,6 +411,26 @@ public class Agente {
         } else {
             setElementoObersvadoEmBaixo(ambiente.elementoDaPosicaoXY(getX(), getY() + 1));
         }
+        if (((getX() - 1) < 0) || ((getY() - 1) < 0)) {
+            setElementoObservadoNaDiagonalEsquerdaSuperior(NULO);
+        } else {
+            setElementoObservadoNaDiagonalEsquerdaSuperior(ambiente.elementoDaPosicaoXY(getX() - 1, getY() - 1));
+        }
+        if (((getX() - 1) < 0) || ((getY() + 1) >= ambiente.getTamanhoMatriz())) {
+            setElementoObservadoNaDiagonalEsquerdaInferior(NULO);
+        } else {
+            setElementoObservadoNaDiagonalEsquerdaInferior(ambiente.elementoDaPosicaoXY(getX() - 1, getY() + 1));
+        }
+        if (((getX() + 1) >= ambiente.getTamanhoMatriz()) || ((getY() - 1) < 0)) {
+            setElementoObservadoNaDiagonalDireitaSuperior(NULO);
+        } else {
+            setElementoObservadoNaDiagonalDireitaSuperior(ambiente.elementoDaPosicaoXY(getX() + 1, getY() - 1));
+        }
+        if (((getX() + 1) >= ambiente.getTamanhoMatriz()) || ((getY() + 1) >= ambiente.getTamanhoMatriz())) {
+            setElementoObservadoNaDiagonalDireitaInferior(NULO);
+        } else {
+            setElementoObservadoNaDiagonalDireitaInferior(ambiente.elementoDaPosicaoXY(getX() + 1, getY() + 1));
+        }
     }
 
     /* Atualiza estado do agente com base no valor das adjacencias
@@ -315,7 +446,7 @@ public class Agente {
 
         log();
 
-        if (direcao == 'e') {
+        if (direcao == ESQUERDA) {
             if (desviandoDeObjetos) {
                 if ((lastColumn != px && py + 1 == lastLine) && py + 1 == lastLine && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
                     py += 1;
@@ -324,7 +455,7 @@ public class Agente {
                 } else if (esq != Ambiente.NULO && esq != Ambiente.RECARGA && esq != Ambiente.LIXEIRA && esq != Ambiente.PAREDE) {
                     px -= 1;
                 } else if (esq == Ambiente.NULO) {
-                    direcao = 'e';
+                    direcao = ESQUERDA;
                 } else if (esq == Ambiente.RECARGA || esq == Ambiente.LIXEIRA || esq == Ambiente.PAREDE) {
                     if (cima != Ambiente.RECARGA && cima != Ambiente.LIXEIRA && cima != Ambiente.PAREDE) {
                         py -= 1;
@@ -334,7 +465,7 @@ public class Agente {
                         lastColumn = px;
                     } else {
                         py += 1;
-                        direcao = 'd';
+                        direcao = DIREITA;
                     }
                 }
                 if (py == lastLine) {
@@ -346,11 +477,11 @@ public class Agente {
                         System.out.println("FIM");
                     } else if (baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
                         py += 1;
-                        direcao = 'd';
+                        direcao = DIREITA;
                     } else {
                         lastColumn = px;
                         desviandoDeObjetos = true;
-                        direcao = 'd';
+                        direcao = DIREITA;
                         lastLine = py + 1;
                     }
                 } else if (esq != Ambiente.RECARGA && esq != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
@@ -361,7 +492,7 @@ public class Agente {
                     lastLine = py;
                 }
             }
-        } else if (direcao == 'd') {
+        } else if (direcao == DIREITA) {
             if (desviandoDeObjetos) {
                 if ((lastColumn != px && py + 1 == lastLine) && py + 1 == lastLine && baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
                     py += 1;
@@ -370,7 +501,7 @@ public class Agente {
                 } else if (dir != Ambiente.NULO && dir != Ambiente.RECARGA && dir != Ambiente.LIXEIRA && dir != Ambiente.PAREDE) {
                     px += 1;
                 } else if (dir == Ambiente.NULO) {
-                    direcao = 'e';
+                    direcao = ESQUERDA;
                 } else if (dir == Ambiente.RECARGA || dir == Ambiente.LIXEIRA || dir == Ambiente.PAREDE) {
                     if (cima != Ambiente.RECARGA && cima != Ambiente.LIXEIRA && cima != Ambiente.PAREDE) {
                         py -= 1;
@@ -390,11 +521,11 @@ public class Agente {
                         System.out.println("FIM");
                     } else if (baixo != Ambiente.RECARGA && baixo != Ambiente.LIXEIRA && baixo != Ambiente.PAREDE) {
                         py += 1;
-                        direcao = 'e';
+                        direcao = ESQUERDA;
                     } else {
                         lastColumn = px;
                         desviandoDeObjetos = true;
-                        direcao = 'e';
+                        direcao = ESQUERDA;
                         lastLine = py + 1;
                     }
                 } else if (dir != Ambiente.RECARGA && dir != Ambiente.LIXEIRA && dir != Ambiente.PAREDE) {
@@ -412,22 +543,22 @@ public class Agente {
         this.observarAmbiente();
         this.log();
 
-        //Se estou indo para a direita
-        if (direcao == 'd' && indo == true) {
+        //Se estou indo para a direita DIREITA
+        if (direcao == DIREITA && indo == true) {
             //Se esta é a última posição da linha
             if (this.getX() == ambiente.getTamanhoMatriz() - 1) {
-                direcao = 'e';
+                direcao = ESQUERDA;
                 voltando = true;
                 indo = false;
             } //Se não existe uma parede na direita, se move para a direita
             else if (elementoObservadoNaDireitaDoAgente != PAREDE) {
                 this.moverParaDireita();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
-                direcao = 'e';
+                direcao = ESQUERDA;
                 voltando = true;
                 indo = false;
             }
-        } else if (direcao == 'e' && voltando == true) {
+        } else if (direcao == ESQUERDA && voltando == true) {
             //Se esta é a primeira posição da linha
             if (this.getX() == 0) {
                 if (this.getX() == 0 && this.getY() == ambiente.getTamanhoMatriz() - 1) {
@@ -437,7 +568,7 @@ public class Agente {
                     //return;
                 } else {
                     this.moverParaBaixo();
-                    direcao = 'd';
+                    direcao = DIREITA;
                     voltando = false;
                     indo = true;
                 }
@@ -445,7 +576,7 @@ public class Agente {
             else if (elementoObservadoNaEsquerdaDoAgente != PAREDE) {
                 this.moverParaEsquerda();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
-                direcao = 'd';
+                direcao = DIREITA;
                 voltando = false;
                 indo = true;
             }
@@ -457,21 +588,21 @@ public class Agente {
         this.log();
 
         //Se estou indo para a esquerda
-        if (direcao == 'e' && indo == true) {
+        if (direcao == ESQUERDA && indo == true) {
             //Se esta é a primeira posição da linha
             if (this.getX() == 0) {
-                direcao = 'd';
+                direcao = DIREITA;
                 voltando = true;
                 indo = false;
             } //Se não existe uma parede na esquerda, se move para a esquerda
             else if (elementoObservadoNaEsquerdaDoAgente != PAREDE) {
                 this.moverParaEsquerda();
             } else if (elementoObservadoNaEsquerdaDoAgente == PAREDE) {
-                direcao = 'd';
+                direcao = DIREITA;
                 voltando = true;
                 indo = false;
             }
-        } else if (direcao == 'd' && voltando == true) {
+        } else if (direcao == DIREITA && voltando == true) {
             //Se esta é a última posição da linha
             if (this.getX() == ambiente.getTamanhoMatriz() - 1) {
                 if (this.getX() == ambiente.getTamanhoMatriz() - 1 && this.getY() == ambiente.getTamanhoMatriz() - 1) {
@@ -485,7 +616,7 @@ public class Agente {
                     //return;
                 } else {
                     this.moverParaBaixo();
-                    direcao = 'e';
+                    direcao = ESQUERDA;
                     voltando = false;
                     indo = true;
                 }
@@ -493,7 +624,7 @@ public class Agente {
             else if (elementoObservadoNaDireitaDoAgente != PAREDE) {
                 this.moverParaDireita();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
-                direcao = 'e';
+                direcao = ESQUERDA;
                 voltando = false;
                 indo = true;
             }
@@ -562,7 +693,7 @@ public class Agente {
                 varreduraPorLinhaNaDireitaConcluida = false;
                 indo = true;
                 voltando = false;
-                direcao = 'e';
+                direcao = ESQUERDA;
                 //return;
             } else {
                 this.moverParaCima();
@@ -571,6 +702,9 @@ public class Agente {
     }
 
     public boolean atualizar2() {
+        solicitarDadosDaLixeiraMaisProxima();
+        solicitarDadosDaRecargaMaisProxima();
+
         if (existeSujeiraNaPosicaoDoAgente()) {
             if (possoColetarMaisLixo()) {
                 this.aspirar();
@@ -594,7 +728,11 @@ public class Agente {
 
     public void log() {
         System.out.println("------------------------------------------------");
+        System.out.println("posicao da recarga mais proxima = " + recargaMaisProxima.toString());
+        System.out.println("distancia da recarga mais proxima = " + distanciaDaRecargaMaisProxima);
         System.out.println("energia restante = " + this.getEnergiaRestante());
+        System.out.println("posicao da lixeira mais proxima = " + lixeiraMaisProxima.toString());
+        System.out.println("distancia da lixeira mais proxima = " + distanciaDaLixeiraMaisProxima);
         System.out.println("lixo coletado = " + this.getLixoColetado());
         System.out.println("direcao = " + direcao);
         System.out.println("indo = " + indo);
