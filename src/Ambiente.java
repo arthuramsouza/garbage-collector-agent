@@ -30,10 +30,70 @@ public class Ambiente {
         lixeiras = new ArrayList<Posicao>();
         recargas = new ArrayList<Posicao>();
         this.tamanhoMatriz = tamanhoMatriz;
-        this.quantidadeLixeiras = quantidadeLixeiras;
-        this.quantidadeRecargas = quantidadeRecargas;
         this.matriz = new char[tamanhoMatriz][tamanhoMatriz];
+        if (quantidadeLixeiras < 0) {
+            this.quantidadeLixeiras = 5;
+        } else {
+            this.quantidadeLixeiras = quantidadeLixeiras;
+        }
+        if (quantidadeRecargas < 0) {
+            this.quantidadeRecargas = 5;
+        } else {
+            this.quantidadeRecargas = quantidadeRecargas;
+        }
         carregar();
+    }
+
+    public void lixeiraMaisProximaDoAgente(Agente agente) {
+        Posicao posicaoDoAgente = new Posicao(agente.getX(), agente.getY());
+        Posicao posicaoAtual = new Posicao(lixeiras.get(0).getX(), lixeiras.get(0).getY());
+        Posicao posicaoMaisProxima = new Posicao(lixeiras.get(0).getX(), lixeiras.get(0).getY());
+        int menorDistancia = distanciaManhattan(posicaoDoAgente, posicaoAtual);
+        int distanciaAtual;
+
+        for (int i = 1; i < lixeiras.size(); i++) {
+            posicaoAtual = new Posicao(lixeiras.get(i).getX(), lixeiras.get(i).getY());
+
+            distanciaAtual = distanciaManhattan(posicaoDoAgente, posicaoAtual);
+
+            if (distanciaAtual < menorDistancia) {
+                menorDistancia = distanciaAtual;
+                posicaoMaisProxima = new Posicao(lixeiras.get(i).getX(), lixeiras.get(i).getY());
+            }
+        }
+
+        agente.atualizarDadosDaLixeiraMaisProxima(posicaoMaisProxima.getX(), posicaoMaisProxima.getY(), menorDistancia);
+    }
+
+    public void recargaMaisProximaDoAgente(Agente agente) {
+        Posicao posicaoDoAgente = new Posicao(agente.getX(), agente.getY());
+        Posicao posicaoAtual = new Posicao(recargas.get(0).getX(), recargas.get(0).getY());
+        Posicao posicaoMaisProxima = new Posicao(recargas.get(0).getX(), recargas.get(0).getY());
+        int menorDistancia = distanciaManhattan(posicaoDoAgente, posicaoAtual);
+        int distanciaAtual;
+
+        for (int i = 1; i < recargas.size(); i++) {
+            posicaoAtual = new Posicao(recargas.get(i).getX(), recargas.get(i).getY());
+
+            distanciaAtual = distanciaManhattan(posicaoDoAgente, posicaoAtual);
+
+            if (distanciaAtual < menorDistancia) {
+                menorDistancia = distanciaAtual;
+                posicaoMaisProxima = new Posicao(recargas.get(i).getX(), recargas.get(i).getY());
+            }
+        }
+
+        agente.atualizarDadosDaRecargaMaisProxima(posicaoMaisProxima.getX(), posicaoMaisProxima.getY(), menorDistancia);
+    }
+
+    public int distanciaManhattan(Posicao posicao1, Posicao posicao2) {
+        int coordenadaX = posicao1.getX() - posicao2.getX();
+        int coordenadaY = posicao1.getY() - posicao2.getY();
+
+        coordenadaX = Math.abs(coordenadaX);
+        coordenadaY = Math.abs(coordenadaY);
+
+        return coordenadaX + coordenadaY;
     }
 
     public int getTamanhoMatriz() {
