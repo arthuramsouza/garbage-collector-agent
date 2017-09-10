@@ -1,6 +1,6 @@
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
- private char direcao, lastMove;  // Direcao de varredura {d, e}
+ private char direcao, lastMove, forceMove;  // Direcao de varredura {d, e}
  private boolean isAvoiding;      // Agente esta contornando algum obstaculo (troca de linha)
 
  public static final char UP_LEFT = 0;
@@ -12,6 +12,7 @@ public class Agente {
  public static final char DOWN_LEFT = 6;
  public static final char DOWN = 7;
  public static final char DOWN_RIGHT = 8;
+ public static final char NONE = 10;
 
  public static final char DIREITA = 'd';
  public static final char ESQUERDA = 'e';
@@ -23,25 +24,23 @@ public class Agente {
   this.direcao = direcao;
   this.currentLine = py;
   this.isAvoiding = false;
+  this.forceMove = NONE;
  }
 
- public int getX() {
-  return px;
- }
- public int getY() {
-  return py;
- }
+ public int getX() { return px; }
+ public int getY() { return py; }
+
 
  private void mover(char direcao) {
    switch(direcao) {
-     case UP_LEFT : px--; py--; break;
-     case UP : py--; break;
-     case UP_RIGHT : px++; py--; break;
-     case LEFT : px--; break;
-     case RIGHT : px++; break;
-     case DOWN_LEFT : px--; py++; break;
-     case DOWN : py++; break;
-     case DOWN_RIGHT : px++; py++; break;
+     case UP_LEFT : lastMove = UP_LEFT; px--; py--; break;
+     case UP : lastMove = UP; py--; break;
+     case UP_RIGHT : lastMove = UP_RIGHT; px++; py--; break;
+     case LEFT : lastMove = LEFT; px--; break;
+     case RIGHT : lastMove = RIGHT; px++; break;
+     case DOWN_LEFT : lastMove = DOWN_LEFT; px--; py++; break;
+     case DOWN : lastMove = DOWN; py++; break;
+     case DOWN_RIGHT : lastMove = DOWN_RIGHT; px++; py++; break;
    }
  }
 
@@ -70,42 +69,56 @@ public class Agente {
    6 7 8
  */
 
- // TODO - quando o agente chegar em currentLine, varrer para o lado noPrefMove
- // antes de setar isAvoiding = false
  public boolean atualizar(char entorno[]) {
    char prefMove = (direcao == DIREITA) ? RIGHT : LEFT;
    char noPrefMove = (direcao == DIREITA) ? LEFT : RIGHT;
+   char prefMoveUp = (direcao == DIREITA) ? UP_RIGHT : UP_LEFT;
+   char noPrefMoveUp = (direcao == DIREITA) ? UP_LEFT : UP_RIGHT;
+
+   char prefMoveDown = (direcao == DIREITA) ? DOWN_RIGHT : DOWN_LEFT;
+   char noPrefMoveDown = (direcao == DIREITA) ? DOWN_LEFT : DOWN_RIGHT;
 
    if(isAvoiding) {
-     if((!isValidMove(entorno[prefMove]) || lastMove == noPrefMove) && isValidMove(entorno[UP])) {
-       lastMove = UP;
-       mover(UP);
-     } else if(isValidMove(entorno[DOWN]) && lastMove != UP && currentLine > py) {
-       lastMove = DOWN;
-       mover(DOWN);
-     } else if(!isValidMove(entorno[prefMove]) && !isValidMove(entorno[UP]) && isValidMove(entorno[noPrefMove])) {
-       lastMove = noPrefMove;
-       mover(noPrefMove);
-     } else if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
-       lastMove = prefMove;
-       mover(prefMove);
-
-       if(currentLine == py) {
-         isAvoiding = false;
+     if(forceMove != NONE) {
+       if(isValidMove(entorno[forceMove])) {
+         mover(forceMove);
        }
+     } else if(!isValidMove(entorno[prefMove]) && isValidMove(entorno[prefMoveUp]) && lastMove != noPrefMoveDown) {
+       mover(prefMoveUp);
+     } else if(!isValidMove(entorno[prefMove]) && isValidMove(entorno[noPrefMoveUp]) && !isValidMove(entorno[UP])) {
+       mover(noPrefMoveUp);
+     } else if(isValidMove(entorno[prefMoveDown]) && currentLine > py && !isValidMove(entorno[DOWN])) {
+       mover(prefMoveDown);
+     }else if(isValidMove(entorno[noPrefMoveDown]) && entorno[prefMove] == Ambiente.NULO && !isValidMove(entorno[DOWN])) {
+       mover(noPrefMoveDown);
+     } else if(isValidMove(entorno[DOWN]) && currentLine > py && lastMove != UP) {
+       mover(DOWN);
+     } else if(isValidMove(entorno[UP]) && !isValidMove(entorno[prefMove]) && !isValidMove(entorno[prefMoveUp]) && lastMove != DOWN) {
+       mover(UP);
+     } else if(lastMove == prefMoveUp && entorno[prefMove] == Ambiente.NULO) {
+       mover(noPrefMoveDown);
+       forceMove = prefMoveDown;
+     } else if(isValidMove(entorno[prefMove]) && currentLine > py) {
+       mover(prefMove);
+     } else if(isValidMove(entorno[noPrefMove]) && currentLine == py) {
+        mover(noPrefMove);
+     } else if(!isValidMove(entorno[noPrefMove]) && isValidMove(entorno[prefMove]) && currentLine == py) {
+       isAvoiding = false;
      }
-   } else { // Movimentos normais - preferencial e tratamento de bordas
-      if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
-        lastMove = prefMove;
+   } else {
+      // Movimentos normais - preferencial e tratamento de bordas
+      if(isValidMove(entorno[prefMove])) {
         mover(prefMove);
       } else if(entorno[prefMove] == Ambiente.NULO) { // bordas da matriz
         if(isValidMove(entorno[DOWN])) {
-          lastMove = DOWN;
           mover(DOWN);
           direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
           currentLine++;
         } else if(entorno[DOWN] == Ambiente.NULO && entorno[prefMove] == Ambiente.NULO) {
+          // Ultima celula do ambiente, encerra simulacao
           return false;
+        } else {
+          isAvoiding = true;
         }
       } else {
         isAvoiding = true;
