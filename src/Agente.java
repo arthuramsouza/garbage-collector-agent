@@ -1,6 +1,7 @@
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
- private char direcao, lastMove; // Direcao de varredura {d, e}
+ private char direcao, lastMove;  // Direcao de varredura {d, e}
+ private boolean isAvoiding;      // Agente esta contornando algum obstaculo (troca de linha)
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -21,6 +22,7 @@ public class Agente {
   this.py = py;
   this.direcao = direcao;
   this.currentLine = py;
+  this.isAvoiding = false;
  }
 
  public int getX() {
@@ -67,47 +69,51 @@ public class Agente {
    3 4 5
    6 7 8
  */
- public void atualizar(char entorno[]) {
-   char prefMove = (direcao == DIREITA) ? Agente.RIGHT : Agente.LEFT;
-   char noPrefMove = (direcao == DIREITA) ? Agente.LEFT : Agente.RIGHT;
 
-   if(currentLine == py) { // esta na linha que esta limpando
-     if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
-       lastMove = prefMove;
-       mover(prefMove);
-     } else if(entorno[prefMove] == Ambiente.NULO) { // bordas da matriz
-       if(isValidMove(entorno[Agente.DOWN])) {
-         lastMove = Agente.DOWN;
-         mover(Agente.DOWN);
-         direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
-         currentLine++;
-       }
-     } else if(isValidMove(entorno[Agente.UP]) && lastMove != Agente.DOWN) {
-          lastMove = Agente.UP;
-          mover(Agente.UP);
-      } else if(isValidMove(entorno[noPrefMove])) {
-        System.out.println("Aqui");
-        lastMove = noPrefMove;
-        mover(noPrefMove);
-      }
-   } else { // tentando voltar para currentLine
-     if(isValidMove(entorno[Agente.DOWN]) && lastMove != Agente.UP) {
-       lastMove = Agente.DOWN;
-       mover(Agente.DOWN);
+ // TODO - quando o agente chegar em currentLine, varrer para o lado noPrefMove
+ // antes de setar isAvoiding = false
+ public boolean atualizar(char entorno[]) {
+   char prefMove = (direcao == DIREITA) ? RIGHT : LEFT;
+   char noPrefMove = (direcao == DIREITA) ? LEFT : RIGHT;
+
+   if(isAvoiding) {
+     if((!isValidMove(entorno[prefMove]) || lastMove == noPrefMove) && isValidMove(entorno[UP])) {
+       lastMove = UP;
+       mover(UP);
+     } else if(isValidMove(entorno[DOWN]) && lastMove != UP && currentLine > py) {
+       lastMove = DOWN;
+       mover(DOWN);
+     } else if(!isValidMove(entorno[prefMove]) && !isValidMove(entorno[UP]) && isValidMove(entorno[noPrefMove])) {
+       lastMove = noPrefMove;
+       mover(noPrefMove);
      } else if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
        lastMove = prefMove;
        mover(prefMove);
-     } else if(isValidMove(entorno[Agente.UP]) && lastMove != Agente.DOWN) {
-       lastMove = Agente.UP;
-       mover(Agente.UP);
-     } else if(isValidMove(entorno[noPrefMove]) && lastMove != prefMove) {
-       lastMove = noPrefMove;
-       mover(noPrefMove);
-     }
-   }
 
+       if(currentLine == py) {
+         isAvoiding = false;
+       }
+     }
+   } else { // Movimentos normais - preferencial e tratamento de bordas
+      if(isValidMove(entorno[prefMove]) && lastMove != noPrefMove) {
+        lastMove = prefMove;
+        mover(prefMove);
+      } else if(entorno[prefMove] == Ambiente.NULO) { // bordas da matriz
+        if(isValidMove(entorno[DOWN])) {
+          lastMove = DOWN;
+          mover(DOWN);
+          direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
+          currentLine++;
+        } else if(entorno[DOWN] == Ambiente.NULO && entorno[prefMove] == Ambiente.NULO) {
+          return false;
+        }
+      } else {
+        isAvoiding = true;
+      }
+   }
    printEntorno(entorno);
    log();
+   return true;
  }
 
 
@@ -117,6 +123,8 @@ public class Agente {
     System.out.println("px = " + px);
     System.out.println("py = " + py);
     System.out.println("currentLine = " + currentLine);
+    System.out.println("lastMove = " + (int)lastMove);
+    System.out.println("isAvoiding obstacle = " + isAvoiding);
     System.out.println("------------------------------------------------");
  }
 

@@ -17,6 +17,8 @@ public class Ambiente {
 	public static final char PAREDE = 'P';
 	public static final char LIMPO = '.';
 
+	public static final int WAIT_TIME = 100;
+
 	private int gerador;
 	Random random = new Random();
 
@@ -38,11 +40,10 @@ public class Ambiente {
 			}
 		}
 
-
 		inserirParedes();
-//		inserirLixeiras();
-//		inserirRecargas();
-//		inserirSujeiras();
+		//inserirLixeiras();
+		//inserirRecargas();
+		//inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -205,10 +206,12 @@ public class Ambiente {
 
 	/* Executa a simulacao dos agentes no ambiente */
 	public void simular() {
-		while (true) {
+		boolean isRunning = true;
+
+		while (isRunning) {
 			try {
 				print();
-				Thread.sleep(100);
+				Thread.sleep(WAIT_TIME);
 				System.out.flush();
 
 				for (Agente ag : agentes) {
@@ -275,15 +278,14 @@ public class Ambiente {
 							entorno[Agente.UP_LEFT] = matriz[ag.getY() - 1][ag.getX() - 1];
 						}
 					}
-
-					ag.atualizar(entorno);
+					isRunning = ag.atualizar(entorno);
 				}
-
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
+		System.out.println("Simulacao concluida com sucesso!");
 	}
 
 }
