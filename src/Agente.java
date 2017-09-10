@@ -342,8 +342,32 @@ public class Agente {
         this.consumirEnergia();
     }
 
+    public void moverParaDiagonalSuperiorEsquerda() {
+        setPx(getX() - 1);
+        setPy(getY() - 1);
+        this.consumirEnergia();
+    }
+
+    public void moveraParaDiagonalInferiorEsquerda() {
+        setPx(getX() - 1);
+        setPy(getY() + 1);
+        this.consumirEnergia();
+    }
+
     public void moverParaDireita() {
         setPx(getX() + 1);
+        this.consumirEnergia();
+    }
+
+    public void moverParaDiagonalSuperiorDireita() {
+        setPx(getX() + 1);
+        setPy(getY() - 1);
+        this.consumirEnergia();
+    }
+
+    public void moveraParaDiagonalInferiorDireita() {
+        setPx(getX() + 1);
+        setPy(getY() + 1);
         this.consumirEnergia();
     }
 
