@@ -9,6 +9,15 @@ public class Posicao {
         this.y = x;
     }
 
+    public Posicao getPosicao() {
+        return new Posicao(getX(), getY());
+    }
+
+    public Posicao() {
+        x = 0;
+        y = 0;
+    }
+
     public int getX() {
         return x;
     }
@@ -23,5 +32,9 @@ public class Posicao {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public String toString() {
+        return "[ " + getY() + " , " + getX() + " ]";
     }
 }
