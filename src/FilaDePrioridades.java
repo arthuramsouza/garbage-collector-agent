@@ -53,11 +53,15 @@ public class FilaDePrioridades {
     }
 
     public Nodo removeFromQueue() {
-        Nodo node_to_remove = head;
-        head = head.getNext();
-        node_to_remove.setNext(null);
-        size = size - 1;
-        return node_to_remove;
+        if (size > 0) {
+            Nodo node_to_remove = head;
+            head = head.getNext();
+            node_to_remove.setNext(null);
+            size = size - 1;
+            return node_to_remove;
+        }
+        System.out.println("\nTENTOU REMOVER, MAS A FILA ESTAVA VAZIA! O.O\n");
+        return null;
     }
 
     public void printQueuePriorities() {
