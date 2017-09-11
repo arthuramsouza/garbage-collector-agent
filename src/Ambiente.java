@@ -96,6 +96,22 @@ public class Ambiente {
         return coordenadaX + coordenadaY;
     }
 
+    public List<Posicao> getLixeiras() {
+        return lixeiras;
+    }
+
+    public void setLixeiras(List<Posicao> lixeiras) {
+        this.lixeiras = lixeiras;
+    }
+
+    public List<Posicao> getRecargas() {
+        return recargas;
+    }
+
+    public void setRecargas(List<Posicao> recargas) {
+        this.recargas = recargas;
+    }
+
     public int getTamanhoMatriz() {
         return tamanhoMatriz;
     }
