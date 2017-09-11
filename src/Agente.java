@@ -1,10 +1,14 @@
 
+import java.util.ArrayList;
+
 public class Agente {
 
-    Posicao lixeiraMaisProxima;
-    int distanciaDaLixeiraMaisProxima;
-    Posicao recargaMaisProxima;
-    int distanciaDaRecargaMaisProxima;
+    private char objetoExcecaoNaBuscaAtual;
+
+    private Posicao lixeiraMaisProxima;
+    private int distanciaDaLixeiraMaisProxima;
+    private Posicao recargaMaisProxima;
+    private int distanciaDaRecargaMaisProxima;
 
     int capacidadeTotalDeEnergia;
     int energiaRestante;
@@ -131,6 +135,22 @@ public class Agente {
         elementoObservadoEmBaixoDoAgente = NULO;
     }
 
+    public ArrayList<Character> aStarBuscandoLixeira(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
+        objetoExcecaoNaBuscaAtual = LIXEIRA;
+
+        return aStar(posicaoDoAgente, posicaoDoDestino);
+    }
+
+    public ArrayList<Character> aStarBuscandoRecarga(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
+        objetoExcecaoNaBuscaAtual = RECARGA;
+
+        return aStar(posicaoDoAgente, posicaoDoDestino);
+    }
+
+    public Posicao getLixeiraMaisProxima() {
+        return lixeiraMaisProxima;
+    }
+
     public void salvarInformacoesDoAgente() {
         agenteParaBACKUPDeDados.px = this.px;
         agenteParaBACKUPDeDados.py = this.py;
@@ -165,6 +185,10 @@ public class Agente {
         this.varreduraCompletamenteConcluida = agenteParaBACKUPDeDados.varreduraCompletamenteConcluida;
     }
 
+    public int solicitarCalculoDeHeuristicaAoAmbiente(Posicao posicaoOrigem, Posicao posicaoDestino) {
+        return ambiente.distanciaManhattan(posicaoOrigem, posicaoDestino);
+    }
+
     public void solicitarDadosDaLixeiraMaisProxima() {
         ambiente.lixeiraMaisProximaDoAgente(this);
     }
@@ -185,8 +209,8 @@ public class Agente {
         distanciaDaRecargaMaisProxima = distancia;
     }
 
-    public Posicao getLixeiraMaisProxima() {
-        return lixeiraMaisProxima;
+    public Posicao posicaoDoAgente() {
+        return new Posicao(px, py);
     }
 
     public void setLixeiraMaisProxima(Posicao lixeiraMaisProxima) {
@@ -399,9 +423,105 @@ public class Agente {
         this.setEnergiaRestante(this.getEnergiaRestante() - 1);
     }
 
-    /*  Algoritmo A* */
-    private void aStar(int x, int y) {
+    private boolean getMatrizReversaAStar(boolean matriz[][], int x, int y) {
+        return matriz[y][x];
+    }
 
+    private void setTrueAtXYNaMatrizReversaAStar(boolean matriz[][], int x, int y) {
+        matriz[y][x] = true;
+    }
+
+    /*  Algoritmo A* */
+    public ArrayList<Character> aStar(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
+        posicaoDoAgente = posicaoDoAgente.inverterPonto();
+        posicaoDoDestino = posicaoDoDestino.inverterPonto();
+        System.out.println("POSICAO ORIGEM = " + posicaoDoAgente.toString());
+        System.out.println("POSICAO DESTINO = " + posicaoDoDestino.toString());
+
+        int n = ambiente.getTamanhoMatriz();
+
+        boolean[][] marked_matrix = new boolean[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                marked_matrix[i][j] = false;
+            }
+        }
+
+        FilaDePrioridades priority_queue = new FilaDePrioridades();
+
+        //se a posicao inicial e igual a posicao final, encerra algoritmo        
+        if (solicitarCalculoDeHeuristicaAoAmbiente(posicaoDoAgente, posicaoDoDestino) == 0) {
+            //System.out.println("ACABEI ANTES DE COMECAR!");
+            return new ArrayList<Character>();
+        }
+
+        //cria o nodo com a posicao inicial e o adiciona na fila de prioridades         
+        Nodo start_node = new Nodo();
+        start_node.setPosition(posicaoDoAgente.getPosicao());
+        priority_queue.addToQueue(start_node);
+
+        //System.out.println("NODO INICIAL= " + start_node.toString());
+        //este procedimento encerra quando remove o nodo objetivo da fila, ou quando nao existem mais nodos na mesma
+        while (priority_queue.getSize() > 0) {
+            //remove o nodo de maior prioridade da fila
+            Nodo node_removed = priority_queue.removeFromQueue();
+            int node_remove_x = node_removed.getPositionX();
+            int node_remove_y = node_removed.getPositionY();
+
+            //se o retorno da heuristica para esse nodo for zero, entao o algoritmo ja pode encerrar
+            if (solicitarCalculoDeHeuristicaAoAmbiente(node_removed.getPosition(), posicaoDoDestino) == 0) {
+                return node_removed.getPath();
+            }
+
+            //verifica quais sao os sucessores do nodo removido da fila
+            ArrayList<Sucessor> sucessores = calcularSucessores(node_removed.getPosition());
+            //System.out.println("PONTO=" + node_removed.getPosition() + " SUCESSORES" + sucessores.toString());  
+
+            //itera sobre os sucessores do nodo removido
+            for (Sucessor sucessor : sucessores) {
+                int sucessor_x = sucessor.getPosicao().getX();
+                int sucessor_y = sucessor.getPosicao().getY();
+
+                //executa o codigo a seguir somente se esta posicao do mapa ainda nao foi explorada
+                if (getMatrizReversaAStar(marked_matrix, sucessor_x, sucessor_y) == false) {
+                    //&& ambiente.elementoDaPosicaoXY(sucessor_x, sucessor_y) != LIXEIRA
+                    //&& ambiente.elementoDaPosicaoXY(sucessor_x, sucessor_y) != RECARGA
+                    //&& ambiente.elementoDaPosicaoXY(sucessor_x, sucessor_y) != PAREDE) {
+
+                    //cria um nodo para essa posicao do mapa
+                    Nodo sucessor_nodo = new Nodo();
+                    sucessor_nodo.setPosition(new Posicao(sucessor_x, sucessor_y));
+
+                    //determina a prioridade deste nodo, calculando g(n) + h(n)
+                    sucessor_nodo.setDistance_until_here(sucessor_nodo.getDistance_until_here() + 1);
+                    sucessor_nodo.setPriority(sucessor_nodo.getDistance_until_here()
+                            + solicitarCalculoDeHeuristicaAoAmbiente(sucessor_nodo.getPosition(),
+                                    posicaoDoDestino));
+
+                    //armazena o caminho nodo
+                    for (int i = 0; i < node_removed.getPath().size(); i++) {
+                        sucessor_nodo.getPath().add(node_removed.getPath().get(i));
+                    }
+                    sucessor_nodo.getPath().add(sucessor.getDirecao());
+
+                    //System.out.println("CAMINHO > " + sucessor_nodo.getPath().toString());
+                    //armazena o numero de movimentos do nodo
+                    sucessor_nodo.setNumber_of_moves(sucessor_nodo.getNumber_of_moves() + 1);
+
+                    //adiciona o nodo na fila de prioridades
+                    priority_queue.addToQueue(sucessor_nodo);
+
+                    //se esta nao e a posicao objetivo, ela e marcada para que nao seja explorada novamente
+                    if (solicitarCalculoDeHeuristicaAoAmbiente(sucessor.getPosicao(), posicaoDoDestino) != 0) {
+                        setTrueAtXYNaMatrizReversaAStar(marked_matrix, sucessor_x, sucessor_y);
+                    }
+                }
+            }
+        }
+
+        //System.out.println("VOLTEI NULO, POIS NAO ACHEI NINGUEM!!! =[");
+        return null;
     }
 
     public void recarregar() {
@@ -768,5 +888,170 @@ public class Agente {
         System.out.println("elemento_acima = " + elementoObservadoEmCimaDoAgente);
         System.out.println("elemento_abaixo = " + elementoObservadoEmBaixoDoAgente);
         System.out.println("------------------------------------------------");
+    }
+
+    public ArrayList<Sucessor> calcularSucessores(Posicao posicaoAlvo) {
+        ArrayList<Sucessor> sucessores = new ArrayList<Sucessor>();
+
+        //ESQUERDA
+        if (!((posicaoAlvo.getX() - 1) < 0)) {
+            int posX = posicaoAlvo.getX() - 1;
+            int posY = posicaoAlvo.getY();
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(ESQUERDA);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //DIREITA
+        if (!((posicaoAlvo.getX() + 1) >= ambiente.getTamanhoMatriz())) {
+            int posX = posicaoAlvo.getX() + 1;
+            int posY = posicaoAlvo.getY();
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(DIREITA);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //ACIMA
+        if (!((posicaoAlvo.getY() - 1) < 0)) {
+            int posX = posicaoAlvo.getX();
+            int posY = posicaoAlvo.getY() - 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(ACIMA);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //ABAIXO
+        if (!((posicaoAlvo.getY() + 1) >= ambiente.getTamanhoMatriz())) {
+            int posX = posicaoAlvo.getX();
+            int posY = posicaoAlvo.getY() + 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(ABAIXO);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //DIAGONAL ESQUERDA SUPERIOR
+        if (!(((posicaoAlvo.getX() - 1) < 0) || ((posicaoAlvo.getY() - 1) < 0))) {
+            int posX = posicaoAlvo.getX() - 1;
+            int posY = posicaoAlvo.getY() - 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(DIAGONALESQUERDASUPERIOR);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //DIAGONAL ESQUERDA INFERIOR
+        if (!(((posicaoAlvo.getX() - 1) < 0) || ((posicaoAlvo.getY() + 1) >= ambiente.getTamanhoMatriz()))) {
+            int posX = posicaoAlvo.getX() - 1;
+            int posY = posicaoAlvo.getY() + 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(DIAGONALESQUERDAINFERIOR);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //DIAGONAL DIREITA SUPERIOR
+        if (!(((posicaoAlvo.getX() + 1) >= ambiente.getTamanhoMatriz()) || ((posicaoAlvo.getY() - 1) < 0))) {
+            int posX = posicaoAlvo.getX() + 1;
+            int posY = posicaoAlvo.getY() - 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(DIAGONALDIREITASUPERIOR);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        //DIAGONAL DIREITA INFERIOR
+        if (!(((posicaoAlvo.getX() + 1) >= ambiente.getTamanhoMatriz()) || ((posicaoAlvo.getY() + 1) >= ambiente.getTamanhoMatriz()))) {
+            int posX = posicaoAlvo.getX() + 1;
+            int posY = posicaoAlvo.getY() + 1;
+
+            char elemento = ambiente.elementoDaPosicaoXY(posX, posY);
+
+            if (elemento == LIMPO || elemento == SUJEIRA || elemento == objetoExcecaoNaBuscaAtual) {
+                Sucessor sucessorAux = new Sucessor();
+                sucessorAux.setDirecao(DIAGONALDIREITAINFERIOR);
+                Posicao posicaoAux = new Posicao(posX, posY);
+                sucessorAux.setPosicao(posicaoAux.getPosicao());
+                sucessores.add(sucessorAux);
+            }
+        }
+
+        return sucessores;
+    }
+
+    public class Sucessor {
+
+        private Posicao posicao;
+        private char direcao;
+
+        public Sucessor() {
+            posicao = new Posicao();
+            direcao = NULO;
+        }
+
+        public Posicao getPosicao() {
+            return posicao;
+        }
+
+        public void setPosicao(Posicao posicao) {
+            this.posicao = posicao;
+        }
+
+        public char getDirecao() {
+            return direcao;
+        }
+
+        public void setDirecao(char direcao) {
+            this.direcao = direcao;
+        }
+
+        public String toString() {
+            return direcao + posicao.toString();
+        }
     }
 }
