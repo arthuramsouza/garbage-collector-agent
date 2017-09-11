@@ -1,4 +1,6 @@
 
+import java.util.ArrayList;
+
 public class App {
 
     public static void main(String[] args) {
@@ -22,6 +24,56 @@ public class App {
                 estadoInicial, ambiente, capacidadeDeColeta, capacidadeDeEnergia);
 
         ambiente.inserirAgente(agente);
-        ambiente.simular2();
+        //ambiente.simular2();    
+
+        //agente.solicitarDadosDaLixeiraMaisProxima();
+        //agente.solicitarDadosDaRecargaMaisProxima();
+        //ambiente.print();
+        //agente.log();
+        //ArrayList<Character> caminhoAchadoPeloAStar = agente.aStarBuscandoLixeira(agente.posicaoDoAgente(), ambiente.getLixeiras().get(0));
+        //if (caminhoAchadoPeloAStar != null) {
+        //    System.out.println("tamanho do caminho= " + caminhoAchadoPeloAStar.size());
+        //    for (int i = 0; i < caminhoAchadoPeloAStar.size(); i++) {
+        //        System.out.println(caminhoAchadoPeloAStar.get(i) + " ");
+        //    }
+        //} else {
+        //    System.out.println("CAMINHO NAO ENCONTRADO!");
+        //}
+        //testeComAFilaDePrioridades();
+    }
+
+    public static void testeComAFilaDePrioridades() {
+        FilaDePrioridades f1 = new FilaDePrioridades();
+
+        f1.printQueuePriorities();
+
+        Nodo nodo1 = new Nodo();
+        nodo1.setPriority(10);
+
+        f1.addToQueue(nodo1);
+        f1.printQueuePriorities();
+
+        Nodo nodo2 = new Nodo();
+        nodo2.setPriority(3);
+        f1.addToQueue(nodo2);
+        f1.printQueuePriorities();
+
+        Nodo nodo3 = new Nodo();
+        nodo3.setPriority(19);
+
+        f1.addToQueue(nodo3);
+        f1.printQueuePriorities();
+
+        f1.removeFromQueue();
+        f1.printQueuePriorities();
+
+        f1.removeFromQueue();
+        f1.printQueuePriorities();
+
+        f1.removeFromQueue();
+        f1.printQueuePriorities();
+
+        f1.removeFromQueue();
+        f1.printQueuePriorities();
     }
 }
