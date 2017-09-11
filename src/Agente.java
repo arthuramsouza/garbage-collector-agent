@@ -1,10 +1,13 @@
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
  private char direcao, lastMove;  // Direcao de varredura {d, e}
  private boolean isAvoiding, isCurrentLineClean;  // Agente esta contornando algum obstaculo (troca de linha)
- //private PriorityQueue<PQueueItem> moves;
+
+ private Queue<PQueueItem> moves;
+
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -28,7 +31,7 @@ public class Agente {
   this.currentLine = py;
   this.isAvoiding = false;
   this.isCurrentLineClean = false;
-  //this.moves = new PriorityQueue<PQueueItem>();
+  this.moves = new PriorityQueue<PQueueItem>();
  }
 
  public int getX() { return px; }
@@ -52,9 +55,55 @@ public class Agente {
  /*
  Algoritmo A*
  */
- private void aStar(int x, int y) {
 
+ // Calculo de heuristica - Manhattan Distance
+ private int calculate_heuristic(int x1, int y1, int x2, int y2) {
+
+   return Math.abs(x2 - x1) + Math.abs(y2 - y1);
  }
+
+
+ private void aStar(int dest_x, int dest_y) {
+   char entorno[] = new char[9];
+
+   int curr_x, curr_y;
+   curr_x = this.px;
+   curr_y = this.py;
+
+   entorno = Ambiente.getEntorno(px, py);
+
+   //while(curr_x != dest_x )
+   // Adiciona movimentos na PriorityQueue, se forem validos
+   if(isValidMove(entorno[UP_LEFT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y - 1, dest_x, dest_y), UP_LEFT));
+   }
+   if(isValidMove(entorno[UP])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x, curr_y - 1, dest_x, dest_y), UP));
+   }
+   if(isValidMove(entorno[UP_RIGHT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y - 1, dest_x, dest_y), UP_RIGHT));
+   }
+   if(isValidMove(entorno[LEFT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y, dest_x, dest_y), LEFT));
+   }
+   if(isValidMove(entorno[RIGHT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y, dest_x, dest_y), RIGHT));
+   }
+   if(isValidMove(entorno[DOWN_LEFT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y + 1, dest_x, dest_y), DOWN_LEFT));
+   }
+   if(isValidMove(entorno[DOWN])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x, curr_y + 1, dest_x, dest_y), DOWN));
+   }
+   if(isValidMove(entorno[DOWN_RIGHT])) {
+     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y + 1, dest_x, dest_y), DOWN_RIGHT));
+   }
+
+   while(!moves.isEmpty()) {
+     System.out.println(moves.remove().toString());
+   }
+ }
+
 
  private boolean isValidMove(char celula) {
    if(celula == Ambiente.PAREDE || celula == Ambiente.NULO ||
@@ -82,6 +131,8 @@ public class Agente {
    char prefMoveDown = (direcao == DIREITA) ? DOWN_RIGHT : DOWN_LEFT;
    char noPrefMoveDown = (direcao == DIREITA) ? DOWN_LEFT : DOWN_RIGHT;
 
+   aStar(0, 0);
+
    if(entorno[AGENTE] == Ambiente.SUJEIRA) {
      Ambiente.limpar(px, py);
    } else if(isCurrentLineClean) { // Obstaculo nas bordas, contornando
@@ -91,7 +142,7 @@ public class Agente {
         mover(noPrefMoveDown);
       } else if(isValidMove(entorno[prefMoveDown]) && currentLine > py) {
           mover(prefMoveDown);
-      } else if(isValidMove(entorno[DOWN]) && !isValidMove(entorno[prefMove]) &&
+      } else if(isValidMove(entorno[DOWN])  &&
       currentLine > py) {
         mover(DOWN);
       } else if(isValidMove(entorno[noPrefMove])) {

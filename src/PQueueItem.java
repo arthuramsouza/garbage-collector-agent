@@ -1,6 +1,6 @@
-import java.util.Comparator;
+//import java.util.Comparable;
 
-public class PQueueItem implements Comparator<Integer> {
+public class PQueueItem implements Comparable<PQueueItem> {
   private int priority;
   private char direction;
 
@@ -12,13 +12,30 @@ public class PQueueItem implements Comparator<Integer> {
   public int getPriority() { return priority; }
   public int getDirection() { return direction; }
 
-  //@Override
-  public int compare(int x, int y) {
-    if(x > y) {
-      return 1;
-    } else if(x < y) {
+  @Override
+  public boolean equals(Object obj) {
+    if(!(obj instanceof PQueueItem)) {
+      return false;
+    }
+
+    PQueueItem p = (PQueueItem)obj;
+    if(p.getPriority() == this.priority) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int compareTo(PQueueItem obj) {
+    if(obj.getPriority() > this.priority) {
       return -1;
+    } else if(obj.getPriority() < this.priority) {
+      return 1;
     }
     return 0;
+  }
+
+  public String toString() {
+    return "Prioridade: " + this.priority + " Direcao: " + (int)this.direction;
   }
 }

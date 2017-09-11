@@ -37,25 +37,25 @@ public class Ambiente {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
 				matriz[i][j] = LIMPO;	// linha de producao
-				//matriz[i][j] = SUJEIRA; // dev only
+				matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
 		inserirParedes();
 		//Desenvolvimento - apagar depois
-		/*
+
 		matriz[6][0] = LIXEIRA;
-		matriz[6][1] = LIXEIRA;
+		matriz[3][2] = LIXEIRA;
+		matriz[4][2] = LIXEIRA;
 		matriz[7][0] = LIXEIRA;
 		matriz[7][3] = LIXEIRA;
-		matriz[6][15] = LIXEIRA;
-		matriz[2][0] = LIXEIRA;
+		matriz[6][11] = LIXEIRA;
+		matriz[3][0] = LIXEIRA;
 		matriz[3][3] = LIXEIRA;
-		//matriz[3][0] = LIXEIRA;
-		*/
-		inserirLixeiras();
-		inserirRecargas();
-		inserirSujeiras();
+
+		//inserirLixeiras();
+		//inserirRecargas();
+		//inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -222,6 +222,71 @@ public class Ambiente {
 		}
 	}
 
+	public static char[] getEntorno(int px, int py) {
+		char[] entorno = new char[9];
+
+		for(int i = 0; i < 9; i++)
+			entorno[i] = NULO;
+
+		// Posicao corrente do agente (centro da matriz)
+		entorno[Agente.AGENTE] = matriz[py][px];
+
+		if(px > 0 && px < tamanhoMatriz - 1) {
+			entorno[Agente.LEFT] = matriz[py][px - 1];
+			entorno[Agente.RIGHT] = matriz[py][px + 1];
+
+			if(py > 0 && py < tamanhoMatriz - 1) {
+				entorno[Agente.UP_LEFT] = matriz[py - 1][px - 1];
+				entorno[Agente.UP] = matriz[py - 1][px];
+				entorno[Agente.UP_RIGHT] = matriz[py - 1][px + 1];
+
+				entorno[Agente.DOWN_LEFT] = matriz[py + 1][px - 1];
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+				entorno[Agente.DOWN_RIGHT] = matriz[py + 1][px + 1];
+			} else if(py == 0) { // Primeira linha
+				entorno[Agente.DOWN_LEFT] = matriz[py + 1][px - 1];
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+				entorno[Agente.DOWN_RIGHT] = matriz[py + 1][px + 1];
+			} else { // Ultima linha
+				entorno[Agente.UP_LEFT] = matriz[py - 1][px - 1];
+				entorno[Agente.UP] = matriz[py - 1][px];
+				entorno[Agente.UP_RIGHT] = matriz[py - 1][px + 1];
+			}
+		} else if(px == 0) { // Primeira coluna
+			entorno[Agente.RIGHT] = matriz[py][px + 1];
+
+			if(py > 0 && py < tamanhoMatriz - 1) {
+				entorno[Agente.UP] = matriz[py - 1][px];
+				entorno[Agente.UP_RIGHT] = matriz[py - 1][px + 1];
+
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+				entorno[Agente.DOWN_RIGHT] = matriz[py + 1][px + 1];
+			} else if(py == 0) { // Primeira linha
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+				entorno[Agente.DOWN_RIGHT] = matriz[py + 1][px + 1];
+			} else { // Ultima linha
+				entorno[Agente.UP] = matriz[py - 1][px];
+				entorno[Agente.UP_RIGHT] = matriz[py - 1][px + 1];
+			}
+		} else { // Ultima coluna
+			entorno[Agente.LEFT] = matriz[py][px - 1];
+
+			if(py > 0 && py < tamanhoMatriz - 1) {
+				entorno[Agente.UP_LEFT] = matriz[py - 1][px - 1];
+				entorno[Agente.UP] = matriz[py - 1][px];
+
+				entorno[Agente.DOWN_LEFT] = matriz[py + 1][px - 1];
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+			} else if(py == 0) { // Primeira linha
+				entorno[Agente.DOWN] = matriz[py + 1][px];
+				entorno[Agente.DOWN_LEFT] = matriz[py + 1][px - 1];
+			} else { // Ultima linha
+				entorno[Agente.UP] = matriz[py - 1][px];
+				entorno[Agente.UP_LEFT] = matriz[py - 1][px - 1];
+			}
+		}
+		return entorno;
+	}
 
 	/* Executa a simulacao dos agentes no ambiente */
 	public void simular() {
@@ -240,63 +305,7 @@ public class Ambiente {
 					for(int i = 0; i < 9; i++)
 						entorno[i] = NULO;
 
-					// Posicao corrente do agente (centro da matriz)
-					entorno[Agente.AGENTE] = matriz[ag.getY()][ag.getX()];
-
-					if(ag.getX() > 0 && ag.getX() < tamanhoMatriz - 1) {
-						entorno[Agente.LEFT] = matriz[ag.getY()][ag.getX() - 1];
-						entorno[Agente.RIGHT] = matriz[ag.getY()][ag.getX() + 1];
-
-						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
-							entorno[Agente.UP_LEFT] = matriz[ag.getY() - 1][ag.getX() - 1];
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-							entorno[Agente.UP_RIGHT] = matriz[ag.getY() - 1][ag.getX() + 1];
-
-							entorno[Agente.DOWN_LEFT] = matriz[ag.getY() + 1][ag.getX() - 1];
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-							entorno[Agente.DOWN_RIGHT] = matriz[ag.getY() + 1][ag.getX() + 1];
-						} else if(ag.getY() == 0) { // Primeira linha
-							entorno[Agente.DOWN_LEFT] = matriz[ag.getY() + 1][ag.getX() - 1];
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-							entorno[Agente.DOWN_RIGHT] = matriz[ag.getY() + 1][ag.getX() + 1];
-						} else { // Ultima linha
-							entorno[Agente.UP_LEFT] = matriz[ag.getY() - 1][ag.getX() - 1];
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-							entorno[Agente.UP_RIGHT] = matriz[ag.getY() - 1][ag.getX() + 1];
-						}
-					} else if(ag.getX() == 0) { // Primeira coluna
-						entorno[Agente.RIGHT] = matriz[ag.getY()][ag.getX() + 1];
-
-						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-							entorno[Agente.UP_RIGHT] = matriz[ag.getY() - 1][ag.getX() + 1];
-
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-							entorno[Agente.DOWN_RIGHT] = matriz[ag.getY() + 1][ag.getX() + 1];
-						} else if(ag.getY() == 0) { // Primeira linha
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-							entorno[Agente.DOWN_RIGHT] = matriz[ag.getY() + 1][ag.getX() + 1];
-						} else { // Ultima linha
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-							entorno[Agente.UP_RIGHT] = matriz[ag.getY() - 1][ag.getX() + 1];
-						}
-					} else { // Ultima coluna
-						entorno[Agente.LEFT] = matriz[ag.getY()][ag.getX() - 1];
-
-						if(ag.getY() > 0 && ag.getY() < tamanhoMatriz - 1) {
-							entorno[Agente.UP_LEFT] = matriz[ag.getY() - 1][ag.getX() - 1];
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-
-							entorno[Agente.DOWN_LEFT] = matriz[ag.getY() + 1][ag.getX() - 1];
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-						} else if(ag.getY() == 0) { // Primeira linha
-							entorno[Agente.DOWN] = matriz[ag.getY() + 1][ag.getX()];
-							entorno[Agente.DOWN_LEFT] = matriz[ag.getY() + 1][ag.getX() - 1];
-						} else { // Ultima linha
-							entorno[Agente.UP] = matriz[ag.getY() - 1][ag.getX()];
-							entorno[Agente.UP_LEFT] = matriz[ag.getY() - 1][ag.getX() - 1];
-						}
-					}
+					entorno = getEntorno(ag.getX(), ag.getY());
 					isRunning = ag.atualizar(entorno);
 				}
 			} catch (Exception e) {
