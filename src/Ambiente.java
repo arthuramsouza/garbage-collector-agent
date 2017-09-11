@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Ambiente {
-	private int tamanhoMatriz;
+	private static int tamanhoMatriz;
 	private int quantidadeLixeiras;
 	private int quantidadeRecargas;
-	private char matriz[][];
+	private static char matriz[][];
 
 	List<Agente> agentes;
 
@@ -17,7 +17,7 @@ public class Ambiente {
 	public static final char PAREDE = 'P';
 	public static final char LIMPO = '.';
 
-	public static final int WAIT_TIME = 100;
+	public static final int WAIT_TIME = 50;
 
 	private int gerador;
 	Random random = new Random();
@@ -36,14 +36,26 @@ public class Ambiente {
 	private void carregar() {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
-				matriz[i][j] = LIMPO;
+				matriz[i][j] = LIMPO;	// linha de producao
+				//matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
 		inserirParedes();
-		//inserirLixeiras();
-		//inserirRecargas();
-		//inserirSujeiras();
+		//Desenvolvimento - apagar depois
+		/*
+		matriz[6][0] = LIXEIRA;
+		matriz[6][1] = LIXEIRA;
+		matriz[7][0] = LIXEIRA;
+		matriz[7][3] = LIXEIRA;
+		matriz[6][15] = LIXEIRA;
+		matriz[2][0] = LIXEIRA;
+		matriz[3][3] = LIXEIRA;
+		//matriz[3][0] = LIXEIRA;
+		*/
+		inserirLixeiras();
+		inserirRecargas();
+		inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -188,21 +200,28 @@ public class Ambiente {
 	/* Imprime o estado atual do ambiente com seus agentes */
 	public void print() {
 		for (int i = 0; i < tamanhoMatriz; i++) {
+			System.out.print(i + "\t");
 			for (int j = 0; j < tamanhoMatriz; j++) {
-
 				// Verifica se algum agente esta nesta Posicao
 				for (Agente ag : agentes) {
 					if (ag.getX() == j && ag.getY() == i)
 						System.out.print("A ");
 					else
 						System.out.print(matriz[i][j] + " ");
-
 				}
 			}
 			System.out.println();
 		}
 		System.out.println("\t");
 	}
+
+	/* Limpa uma celula passada por parametro */
+	public static void limpar(int px, int py) {
+		if(px < tamanhoMatriz && py < tamanhoMatriz && px >= 0 && py >= 0) {
+			matriz[py][px] = LIMPO;
+		}
+	}
+
 
 	/* Executa a simulacao dos agentes no ambiente */
 	public void simular() {

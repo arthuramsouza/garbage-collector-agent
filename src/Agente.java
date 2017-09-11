@@ -1,7 +1,10 @@
+import java.util.PriorityQueue;
+
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
- private char direcao, lastMove, forceMove;  // Direcao de varredura {d, e}
- private boolean isAvoiding;      // Agente esta contornando algum obstaculo (troca de linha)
+ private char direcao, lastMove;  // Direcao de varredura {d, e}
+ private boolean isAvoiding, isCurrentLineClean;  // Agente esta contornando algum obstaculo (troca de linha)
+ //private PriorityQueue<PQueueItem> moves;
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -24,7 +27,8 @@ public class Agente {
   this.direcao = direcao;
   this.currentLine = py;
   this.isAvoiding = false;
-  this.forceMove = NONE;
+  this.isCurrentLineClean = false;
+  //this.moves = new PriorityQueue<PQueueItem>();
  }
 
  public int getX() { return px; }
@@ -78,33 +82,81 @@ public class Agente {
    char prefMoveDown = (direcao == DIREITA) ? DOWN_RIGHT : DOWN_LEFT;
    char noPrefMoveDown = (direcao == DIREITA) ? DOWN_LEFT : DOWN_RIGHT;
 
-   if(isAvoiding) {
-     if(forceMove != NONE) {
-       if(isValidMove(entorno[forceMove])) {
-         mover(forceMove);
-       }
-     } else if(!isValidMove(entorno[prefMove]) && isValidMove(entorno[prefMoveUp]) && lastMove != noPrefMoveDown) {
-       mover(prefMoveUp);
-     } else if(!isValidMove(entorno[prefMove]) && isValidMove(entorno[noPrefMoveUp]) && !isValidMove(entorno[UP])) {
-       mover(noPrefMoveUp);
-     } else if(isValidMove(entorno[prefMoveDown]) && currentLine > py && !isValidMove(entorno[DOWN])) {
-       mover(prefMoveDown);
-     }else if(isValidMove(entorno[noPrefMoveDown]) && entorno[prefMove] == Ambiente.NULO && !isValidMove(entorno[DOWN])) {
-       mover(noPrefMoveDown);
-     } else if(isValidMove(entorno[DOWN]) && currentLine > py && lastMove != UP) {
-       mover(DOWN);
-     } else if(isValidMove(entorno[UP]) && !isValidMove(entorno[prefMove]) && !isValidMove(entorno[prefMoveUp]) && lastMove != DOWN) {
-       mover(UP);
-     } else if(lastMove == prefMoveUp && entorno[prefMove] == Ambiente.NULO) {
-       mover(noPrefMoveDown);
-       forceMove = prefMoveDown;
-     } else if(isValidMove(entorno[prefMove]) && currentLine > py) {
-       mover(prefMove);
-     } else if(isValidMove(entorno[noPrefMove]) && currentLine == py) {
+   if(entorno[AGENTE] == Ambiente.SUJEIRA) {
+     Ambiente.limpar(px, py);
+   } else if(isCurrentLineClean) { // Obstaculo nas bordas, contornando
+      if(isValidMove(entorno[noPrefMoveDown]) &&
+      !isValidMove(entorno[prefMove]) && !isValidMove(entorno[DOWN]) &&
+      !isValidMove(entorno[prefMoveDown]) && currentLine > py) {
+        mover(noPrefMoveDown);
+      } else if(isValidMove(entorno[prefMoveDown]) && currentLine > py) {
+          mover(prefMoveDown);
+      } else if(isValidMove(entorno[DOWN]) && !isValidMove(entorno[prefMove]) &&
+      currentLine > py) {
+        mover(DOWN);
+      } else if(isValidMove(entorno[noPrefMove])) {
         mover(noPrefMove);
-     } else if(!isValidMove(entorno[noPrefMove]) && isValidMove(entorno[prefMove]) && currentLine == py) {
+      } else if(isValidMove(entorno[prefMove]) && currentLine == py) {
+        mover(prefMove);
+      } else {
+        System.out.println("Situacao nao prevista!");
+        System.exit(1);
+      }
+
+      if(currentLine == py && !isValidMove(entorno[prefMove])) {
+        isCurrentLineClean = false;
+        isAvoiding = false;
+        direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
+      }
+
+      if(entorno[prefMove] == Ambiente.NULO && entorno[DOWN] == Ambiente.NULO) {
+        return false;
+      }
+
+   } else if(isAvoiding) {
+     if(isValidMove(entorno[prefMoveUp]) && !isValidMove(entorno[prefMove]) &&
+     lastMove != noPrefMoveDown) {
+       mover(prefMoveUp);
+     } else if(isValidMove(entorno[noPrefMoveUp]) && !isValidMove(entorno[prefMove]) &&
+     !isValidMove(entorno[prefMoveUp]) && !isValidMove(entorno[UP]) &&
+     lastMove != prefMoveDown && lastMove != noPrefMoveDown) {
+       mover(noPrefMoveUp);
+     } else if(isValidMove(entorno[prefMove]) &&
+     !isValidMove(entorno[DOWN])&& !isValidMove(entorno[prefMoveDown]) &&
+     lastMove != noPrefMove && currentLine > py)  {
+       mover(prefMove);
+     } else if(isValidMove(entorno[prefMoveDown]) && lastMove != noPrefMoveUp &&
+       !isValidMove(entorno[DOWN]) && currentLine > py) {
+       mover(prefMoveDown);
+     } else if(isValidMove(entorno[noPrefMove]) && lastMove != prefMove &&
+     (lastMove == DOWN || lastMove == prefMoveDown || lastMove == noPrefMoveDown)) {
+       mover(noPrefMove);
+     } else if(isValidMove(entorno[noPrefMoveDown]) &&
+     !isValidMove(entorno[noPrefMove]) && lastMove != UP && lastMove != prefMoveUp
+     && currentLine > py) {
+        mover(noPrefMoveDown);
+     } else if(isValidMove(entorno[DOWN]) && lastMove != UP &&
+     lastMove != prefMoveUp && lastMove != noPrefMoveUp &&
+     currentLine > py) {
+       mover(DOWN);
+     } else if(isValidMove(entorno[UP]) && !isValidMove(entorno[prefMove]) &&
+     lastMove != DOWN && entorno[prefMove] != Ambiente.NULO) {
+       mover(UP);
+     } else if(isValidMove(entorno[prefMove]) && currentLine == py &&
+     entorno[prefMove] != Ambiente.NULO) {
        isAvoiding = false;
+
+     // Tratamento das bordas da matriz
+     } else if(entorno[prefMove] == Ambiente.NULO && !isCurrentLineClean) {
+       isCurrentLineClean = true;
+       currentLine++;
+
+     // Acao nao prevista (util para debug e evitar loop infinito)
+     } else {
+       System.out.println("Acao nao prevista!");
+       System.exit(1);
      }
+
    } else {
       // Movimentos normais - preferencial e tratamento de bordas
       if(isValidMove(entorno[prefMove])) {
@@ -114,6 +166,7 @@ public class Agente {
           mover(DOWN);
           direcao = (direcao == DIREITA) ? ESQUERDA : DIREITA;
           currentLine++;
+          isCurrentLineClean = false;
         } else if(entorno[DOWN] == Ambiente.NULO && entorno[prefMove] == Ambiente.NULO) {
           // Ultima celula do ambiente, encerra simulacao
           return false;
@@ -138,6 +191,7 @@ public class Agente {
     System.out.println("currentLine = " + currentLine);
     System.out.println("lastMove = " + (int)lastMove);
     System.out.println("isAvoiding obstacle = " + isAvoiding);
+    System.out.println("isCurrentLineClean = " + isCurrentLineClean);
     System.out.println("------------------------------------------------");
  }
 
