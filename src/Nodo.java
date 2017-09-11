@@ -19,6 +19,10 @@ public class Nodo {
         path = new ArrayList<Character>();
     }
 
+    public String toString() {
+        return "posicao:" + position.toString() + " prioridade:" + priority + " caminho" + path.toString();
+    }
+
     public int getPriority() {
         return priority;
     }
@@ -65,5 +69,17 @@ public class Nodo {
 
     public void setPath(ArrayList<Character> path) {
         this.path = path;
+    }
+
+    public int getPositionX() {
+        return position.getX();
+    }
+
+    public int getPositionY() {
+        return position.getY();
+    }
+
+    public void addAMove(char move) {
+        path.add(move);
     }
 }
