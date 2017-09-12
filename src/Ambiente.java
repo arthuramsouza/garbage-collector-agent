@@ -3,6 +3,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ */
 public class Ambiente {
 
     private int tamanhoMatriz;
@@ -45,50 +48,50 @@ public class Ambiente {
     }
 
     public void lixeiraMaisProximaDoAgente(Agente agente) {
-        Posicao posicaoDoAgente = new Posicao(agente.getX(), agente.getY());
-        Posicao posicaoAtual = new Posicao(lixeiras.get(0).getX(), lixeiras.get(0).getY());
-        Posicao posicaoMaisProxima = new Posicao(lixeiras.get(0).getX(), lixeiras.get(0).getY());
+        Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
+        Posicao posicaoAtual = new Posicao(lixeiras.get(0).getLinha(), lixeiras.get(0).getColuna());
+        Posicao posicaoMaisProxima = new Posicao(lixeiras.get(0).getLinha(), lixeiras.get(0).getColuna());
         int menorDistancia = distanciaManhattan(posicaoDoAgente, posicaoAtual);
         int distanciaAtual;
 
         for (int i = 1; i < lixeiras.size(); i++) {
-            posicaoAtual = new Posicao(lixeiras.get(i).getX(), lixeiras.get(i).getY());
+            posicaoAtual = new Posicao(lixeiras.get(i).getLinha(), lixeiras.get(i).getColuna());
 
             distanciaAtual = distanciaManhattan(posicaoDoAgente, posicaoAtual);
 
             if (distanciaAtual < menorDistancia) {
                 menorDistancia = distanciaAtual;
-                posicaoMaisProxima = new Posicao(lixeiras.get(i).getX(), lixeiras.get(i).getY());
+                posicaoMaisProxima = new Posicao(lixeiras.get(i).getLinha(), lixeiras.get(i).getColuna());
             }
         }
 
-        agente.atualizarDadosDaLixeiraMaisProxima(posicaoMaisProxima.getX(), posicaoMaisProxima.getY(), menorDistancia);
+        agente.atualizarDadosDaLixeiraMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
     public void recargaMaisProximaDoAgente(Agente agente) {
-        Posicao posicaoDoAgente = new Posicao(agente.getX(), agente.getY());
-        Posicao posicaoAtual = new Posicao(recargas.get(0).getX(), recargas.get(0).getY());
-        Posicao posicaoMaisProxima = new Posicao(recargas.get(0).getX(), recargas.get(0).getY());
+        Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
+        Posicao posicaoAtual = new Posicao(recargas.get(0).getLinha(), recargas.get(0).getColuna());
+        Posicao posicaoMaisProxima = new Posicao(recargas.get(0).getLinha(), recargas.get(0).getColuna());
         int menorDistancia = distanciaManhattan(posicaoDoAgente, posicaoAtual);
         int distanciaAtual;
 
         for (int i = 1; i < recargas.size(); i++) {
-            posicaoAtual = new Posicao(recargas.get(i).getX(), recargas.get(i).getY());
+            posicaoAtual = new Posicao(recargas.get(i).getLinha(), recargas.get(i).getColuna());
 
             distanciaAtual = distanciaManhattan(posicaoDoAgente, posicaoAtual);
 
             if (distanciaAtual < menorDistancia) {
                 menorDistancia = distanciaAtual;
-                posicaoMaisProxima = new Posicao(recargas.get(i).getX(), recargas.get(i).getY());
+                posicaoMaisProxima = new Posicao(recargas.get(i).getLinha(), recargas.get(i).getColuna());
             }
         }
 
-        agente.atualizarDadosDaRecargaMaisProxima(posicaoMaisProxima.getX(), posicaoMaisProxima.getY(), menorDistancia);
+        agente.atualizarDadosDaRecargaMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
     public int distanciaManhattan(Posicao posicao1, Posicao posicao2) {
-        int coordenadaX = posicao1.getX() - posicao2.getX();
-        int coordenadaY = posicao1.getY() - posicao2.getY();
+        int coordenadaX = posicao1.getLinha() - posicao2.getLinha();
+        int coordenadaY = posicao1.getColuna() - posicao2.getColuna();
 
         coordenadaX = Math.abs(coordenadaX);
         coordenadaY = Math.abs(coordenadaY);
@@ -116,12 +119,12 @@ public class Ambiente {
         return tamanhoMatriz;
     }
 
-    public char elementoDaPosicaoXY(int x, int y) {
-        return matriz[y][x];
+    public char elementoDaPosicaoLinhaColuna(int linha, int coluna) {
+        return matriz[linha][coluna];
     }
 
-    public void setElementoDaPosicaoXY(int x, int y, char valor) {
-        matriz[y][x] = valor;
+    public void setElementoDaPosicaoLinhaColuna(int linha, int coluna, char valor) {
+        matriz[linha][coluna] = valor;
     }
 
     /* Coloca elementos no ambiente - estatico */
@@ -239,7 +242,7 @@ public class Ambiente {
         double percentual1 = this.tamanhoMatriz + ((40 / 100) * this.tamanhoMatriz);
         double percentual2 = this.tamanhoMatriz + ((80 / 100) * this.tamanhoMatriz);
 
-        int numero = random.nextInt(this.tamanhoMatriz);
+        int numero = (random.nextInt(this.tamanhoMatriz)) + 10;
 
         while (numero < percentual1 && numero > percentual2) {
             numero = random.nextInt(this.tamanhoMatriz);
@@ -283,16 +286,15 @@ public class Ambiente {
 
     /* Imprime o estado atual do ambiente com seus agentes */
     public void print() {
-        for (int i = 0; i < tamanhoMatriz; i++) {
-            for (int j = 0; j < tamanhoMatriz; j++) {
+        for (int linha = 0; linha < tamanhoMatriz; linha++) {
+            for (int coluna = 0; coluna < tamanhoMatriz; coluna++) {
                 // Verifica se algum agente esta nesta Posicao
                 for (Agente ag : agentes) {
-                    if (ag.getX() == j && ag.getY() == i) {
+                    if (ag.getPosicaoLinha() == linha && ag.getPosicaoColuna() == coluna) {
                         System.out.print("A ");
                     } else {
-                        System.out.print(matriz[i][j] + " ");
+                        System.out.print(matriz[linha][coluna] + " ");
                     }
-
                 }
             }
             System.out.println();
@@ -302,62 +304,6 @@ public class Ambiente {
 
     /* Executa a simulacao dos agentes no ambiente */
     public void simular() {
-        boolean acabou = false;
-
-        while (true) {
-            print();
-            try {
-                Thread.sleep(300);
-                System.out.flush();
-
-                for (Agente ag : agentes) {
-                    char atual, esq, dir, cima, baixo;
-                    atual = matriz[ag.getY()][ag.getX()];
-
-                    if ((ag.getX() - 1) < 0) {
-                        esq = NULO;
-                    } else {
-                        esq = matriz[ag.getY()][ag.getX() - 1];
-                    }
-
-                    if ((ag.getX() + 1) >= tamanhoMatriz) {
-                        dir = NULO;
-                    } else {
-                        dir = matriz[ag.getY()][ag.getX() + 1];
-                    }
-
-                    if ((ag.getY() - 1) < 0) {
-                        cima = NULO;
-                    } else {
-                        cima = matriz[ag.getY() - 1][ag.getX()];
-                    }
-
-                    if ((ag.getY() + 1) >= tamanhoMatriz) {
-                        baixo = NULO;
-                    } else {
-                        baixo = matriz[ag.getY() + 1][ag.getX()];
-                    }
-
-                    acabou = ag.atualizar2();
-                    if (acabou == true) {
-                        break;
-                    }
-                }
-
-                if (acabou == true) {
-                    System.out.println("SIMULACAO ENCERRADA!!!");
-                    break;
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-    }
-
-    /* Executa a simulacao dos agentes no ambiente */
-    public void simular2() {
         boolean acabou = false;
 
         while (true) {
@@ -390,7 +336,7 @@ public class Ambiente {
         System.out.println("coordenadas das lixeiras");
 
         for (int i = 0; i < lixeiras.size(); i++) {
-            System.out.println("[ " + lixeiras.get(i).getX() + " , " + lixeiras.get(i).getY() + "]");
+            System.out.println("[ " + lixeiras.get(i).getLinha() + " , " + lixeiras.get(i).getColuna() + "]");
         }
 
         System.out.println();
@@ -400,7 +346,7 @@ public class Ambiente {
         System.out.println("coordenadas das recargas");
 
         for (int i = 0; i < recargas.size(); i++) {
-            System.out.println("[ " + recargas.get(i).getX() + " , " + recargas.get(i).getY() + "]");
+            System.out.println("[ " + recargas.get(i).getLinha() + " , " + recargas.get(i).getColuna() + "]");
         }
 
         System.out.println();
