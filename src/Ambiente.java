@@ -40,22 +40,10 @@ public class Ambiente {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
 				matriz[i][j] = LIMPO;	// linha de producao
-				//matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
 		inserirParedes();
-		//Desenvolvimento - apagar depois
-		/*
-		matriz[6][0] = LIXEIRA;
-		matriz[3][2] = LIXEIRA;
-		matriz[4][2] = LIXEIRA;
-		matriz[7][0] = LIXEIRA;
-		matriz[7][3] = LIXEIRA;
-		matriz[6][11] = LIXEIRA;
-		matriz[3][0] = LIXEIRA;
-		matriz[3][3] = LIXEIRA;
-		*/
 		inserirLixeiras();
 		inserirRecargas();
 		inserirSujeiras();
