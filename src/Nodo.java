@@ -1,6 +1,9 @@
 
 import java.util.ArrayList;
 
+/**
+ * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ */
 public class Nodo {
 
     private int priority;
@@ -56,7 +59,7 @@ public class Nodo {
     }
 
     public Posicao getPosition() {
-        return position;
+        return position.getPosicao();
     }
 
     public void setPosition(Posicao position) {
@@ -71,12 +74,12 @@ public class Nodo {
         this.path = path;
     }
 
-    public int getPositionX() {
-        return position.getX();
+    public int getPosicaoLinha() {
+        return position.getLinha();
     }
 
-    public int getPositionY() {
-        return position.getY();
+    public int getPosicaoColuna() {
+        return position.getColuna();
     }
 
     public void addAMove(char move) {
