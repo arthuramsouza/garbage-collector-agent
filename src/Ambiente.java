@@ -40,7 +40,7 @@ public class Ambiente {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
 				matriz[i][j] = LIMPO;	// linha de producao
-				matriz[i][j] = SUJEIRA; // dev only
+				//matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
@@ -54,18 +54,18 @@ public class Ambiente {
 		//matriz[7][3] = LIXEIRA;
 		//matriz[6][11] = LIXEIRA;
 //		matriz[3][0] = LIXEIRA;
-
+	/*
 		matriz[2][0] = LIXEIRA;
 		lixeiras.add(new Ponto(0, 2));
 		matriz[3][4] = LIXEIRA;
 		lixeiras.add(new Ponto(4, 3));
 		matriz[3][6] = LIXEIRA;
 		lixeiras.add(new Ponto(6, 3));
+*/
 
-
-		//inserirLixeiras();
-		//inserirRecargas();
-		//inserirSujeiras();
+		inserirLixeiras();
+		inserirRecargas();
+		inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */

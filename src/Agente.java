@@ -20,10 +20,10 @@ public class Agente {
 
  private int energia, lixeira;
 
- private static final int CUSTO_MOVIMENTO = 0;
- private static final int CUSTO_ASPIRAR = 0;
+ private static final int CUSTO_MOVIMENTO = 1;
+ private static final int CUSTO_ASPIRAR = 1;
  private static final int CUSTO_LIXO = 1;
- private static final int MAX_ENERGIA = 10;
+ private static final int MAX_ENERGIA = 80;
  private static final int MAX_LIXEIRA = 2;
 
  public static final char UP_LEFT = 0;
@@ -182,6 +182,35 @@ public class Agente {
    return true;
  }
 
+ // Verifica se tem energia para chegar no ponto de recarga mais proximo
+ private boolean isLowEnergy() {
+   this.prev_x = this.px;
+   this.prev_y = this.py;
+
+   if(!carregadores.isEmpty()) {
+     Ponto carregadorProximo = carregadores.get(0);
+
+     List<Character> min_moves = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+
+     for(int i = 1; i < carregadores.size(); i++) {
+       carregadorProximo = carregadores.get(i);
+       List<Character> moves_aux = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+
+       if(moves_aux.size() < min_moves.size()) {
+         min_moves = moves_aux;
+       }
+     }
+     this.moves = min_moves;
+   }
+
+   //System.out.println("Custo ate carregador mais proximo = " + this.moves.size());
+
+   if(this.energia < (this.moves.size() * CUSTO_MOVIMENTO + 5)) {
+     return true;
+   }
+   return false;
+ }
+
  /* Atualiza estado do agente com base no valor das adjacencias
  > Requer: informacoes da celula atual e adjacentes
 
@@ -206,7 +235,7 @@ public class Agente {
    }
 
    if(isRunningAStar) {
-     System.out.println("Rodando astar");
+     //System.out.println("Rodando astar");
      // Realiza movimento de ida
      if(!this.moves.isEmpty()) {
        System.out.println("Movimento de ida");
@@ -235,8 +264,9 @@ public class Agente {
        }
      }
 
-   //} else if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
-
+   } else if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
+     isRunningAStar = true;
+     isRecharging = true;
    } else if(this.lixeira == MAX_LIXEIRA) { // lixeira cheia, descarregar
      isRunningAStar = true;
      isDroppingTrash = true;
@@ -379,7 +409,7 @@ public class Agente {
     System.out.println("Energia = " + energia + "/" + MAX_ENERGIA + "  Lixeira = " + lixeira + "/" + MAX_LIXEIRA);
     System.out.println("currentLine = " + currentLine + "  lastMove = " + MOVES_STR[(int)lastMove]);
     System.out.println("isAvoiding obstacle = " + isAvoiding + "  isCurrentLineClean = " + isCurrentLineClean);
-    System.out.println("isRunningAStar = " + isRunningAStar);
+    System.out.println("isRunningAStar = " + isRunningAStar + "  isDroppingTrash = " + isDroppingTrash + "  isRecharging = " + isRecharging);
     System.out.println("------------------------------------------------");
  }
 
