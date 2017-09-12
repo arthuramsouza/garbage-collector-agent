@@ -1,13 +1,12 @@
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
  private char direcao, lastMove;  // Direcao de varredura {d, e}
  private boolean isAvoiding, isCurrentLineClean;  // Agente esta contornando algum obstaculo (troca de linha)
-
- private Queue<PQueueItem> moves;
-
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -31,7 +30,7 @@ public class Agente {
   this.currentLine = py;
   this.isAvoiding = false;
   this.isCurrentLineClean = false;
-  this.moves = new PriorityQueue<PQueueItem>();
+
  }
 
  public int getX() { return px; }
@@ -63,45 +62,68 @@ public class Agente {
  }
 
 
- private void aStar(int dest_x, int dest_y) {
+ public List<Character> aStar(int dest_x, int dest_y) {
    char entorno[] = new char[9];
+   Queue<Node> nodes = new PriorityQueue<Node>();
+   List<Character> result = new ArrayList<Character>();
 
-   int curr_x, curr_y;
-   curr_x = this.px;
-   curr_y = this.py;
+   int curr_x = this.px;
+   int curr_y = this.py;
+   // Gera primeiro nodo (posicao atual do agente)
+   Node node = new Node(  0,
+                          calculate_heuristic(curr_x, curr_y, dest_x, dest_y),
+                          NONE, null, curr_x, curr_y);
+   nodes.add(node);
 
-   entorno = Ambiente.getEntorno(px, py);
+   while(!nodes.isEmpty()) {
+     node = nodes.remove();
 
-   //while(curr_x != dest_x )
-   // Adiciona movimentos na PriorityQueue, se forem validos
-   if(isValidMove(entorno[UP_LEFT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y - 1, dest_x, dest_y), UP_LEFT));
-   }
-   if(isValidMove(entorno[UP])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x, curr_y - 1, dest_x, dest_y), UP));
-   }
-   if(isValidMove(entorno[UP_RIGHT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y - 1, dest_x, dest_y), UP_RIGHT));
-   }
-   if(isValidMove(entorno[LEFT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y, dest_x, dest_y), LEFT));
-   }
-   if(isValidMove(entorno[RIGHT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y, dest_x, dest_y), RIGHT));
-   }
-   if(isValidMove(entorno[DOWN_LEFT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x - 1, curr_y + 1, dest_x, dest_y), DOWN_LEFT));
-   }
-   if(isValidMove(entorno[DOWN])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x, curr_y + 1, dest_x, dest_y), DOWN));
-   }
-   if(isValidMove(entorno[DOWN_RIGHT])) {
-     moves.add(new PQueueItem(calculate_heuristic(curr_x + 1, curr_y + 1, dest_x, dest_y), DOWN_RIGHT));
+     System.out.println("Retirando nodo da pqueue " + node.toString());
+     curr_x = node.getX();
+     curr_y = node.getY();
+
+     if(node.getX() == dest_x && node.getY() == dest_y) {
+       break;
+     }
+
+     entorno = Ambiente.getEntorno(curr_x, curr_y);
+
+     // Gera sucessores do nodo atual e adiciona na PriorityQueue
+     for(int i = 0; i < 9; i++) {
+       if(i == AGENTE) {
+         continue;
+       }
+
+       int x = curr_x;
+       int y = curr_y;
+
+       if(isValidMove(entorno[i])) {
+         switch(i) {
+           case UP_LEFT  : x--; y--; break;
+           case UP       : y--; break;
+           case UP_RIGHT : x++; y--; break;
+           case LEFT     : x--; break;
+           case RIGHT    : x++; break;
+           case DOWN_LEFT  : x--; y++; break;
+           case DOWN       : y++; break;
+           case DOWN_RIGHT : x++; y++; break;
+         }
+
+         Node node_child = new Node(     node.getG() + 1, calculate_heuristic(x, y, dest_x, dest_y),
+                            (char)i, node, x, y);
+         System.out.println("    Criando nodo " + node_child.toString());
+         nodes.add(node_child);
+       }
+     }
    }
 
-   while(!moves.isEmpty()) {
-     System.out.println(moves.remove().toString());
+   while(node.getParent() != null) {
+     System.out.println("Adicionando na resposta --- " + node.toString());
+     result.add(node.getDirection());
+     node = node.getParent();
    }
+
+   return result;
  }
 
 
@@ -130,8 +152,6 @@ public class Agente {
 
    char prefMoveDown = (direcao == DIREITA) ? DOWN_RIGHT : DOWN_LEFT;
    char noPrefMoveDown = (direcao == DIREITA) ? DOWN_LEFT : DOWN_RIGHT;
-
-   aStar(0, 0);
 
    if(entorno[AGENTE] == Ambiente.SUJEIRA) {
      Ambiente.limpar(px, py);
