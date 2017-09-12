@@ -1,6 +1,9 @@
 
 import java.util.ArrayList;
 
+/**
+ * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ */
 public class App {
 
     public static void main(String[] args) {
@@ -15,17 +18,20 @@ public class App {
         int yInicial = 0;
         char direcaoInicial = 'D';
         int estadoInicial = 0;
-        int capacidadeDeColeta = 15;
+        int capacidadeDeColeta = 5;
         int capacidadeDeEnergia = 100;
 
-        //ambiente.imprimirCoordenadasDasLixeiras();
-        //ambiente.imprimirCoordenadasDasRecargas();
+        ambiente.imprimirCoordenadasDasLixeiras();
+        ambiente.imprimirCoordenadasDasRecargas();
         Agente agente = new Agente(xInicial, yInicial, direcaoInicial,
                 estadoInicial, ambiente, capacidadeDeColeta, capacidadeDeEnergia);
 
         ambiente.inserirAgente(agente);
-        //ambiente.simular2();    
+        ambiente.simular();
 
+        //ArrayList<Character> lista = new ArrayList<>();
+        //lista = null;
+        //lista.size();
         //agente.solicitarDadosDaLixeiraMaisProxima();
         //agente.solicitarDadosDaRecargaMaisProxima();
         //ambiente.print();
