@@ -2,7 +2,7 @@
 import java.util.ArrayList;
 
 /**
- * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ * A classe Nodo é utilizada na classe FilaDePrioridades.
  */
 public class Nodo {
 
