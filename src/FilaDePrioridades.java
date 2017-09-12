@@ -1,6 +1,7 @@
 
 /**
- * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ * Esta classe é uma fila de prioridades encadeada que é utilizada no algoritmo A*.
+ *
  */
 public class FilaDePrioridades {
 
@@ -63,7 +64,6 @@ public class FilaDePrioridades {
             size = size - 1;
             return node_to_remove;
         }
-        System.out.println("\nTENTOU REMOVER, MAS A FILA ESTAVA VAZIA! O.O\n");
         return null;
     }
 
