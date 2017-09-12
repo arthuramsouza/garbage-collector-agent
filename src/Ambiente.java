@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ * Esta classe consiste na implementação do ambiente.
  */
 public class Ambiente {
 
@@ -24,7 +24,6 @@ public class Ambiente {
     public static final char PAREDE = 'P';
     public static final char LIMPO = '.';
 
-    private int gerador;
     Random random = new Random();
 
     /* Construtor da classe */
@@ -47,6 +46,7 @@ public class Ambiente {
         carregar();
     }
 
+    /* O ambiente informa ao agente qual é a lixeira mais próxima */
     public void lixeiraMaisProximaDoAgente(Agente agente) {
         Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
         Posicao posicaoAtual = new Posicao(lixeiras.get(0).getLinha(), lixeiras.get(0).getColuna());
@@ -68,6 +68,7 @@ public class Ambiente {
         agente.atualizarDadosDaLixeiraMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
+    /* O ambiente informa ao agente qual é a recarga mais próxima */
     public void recargaMaisProximaDoAgente(Agente agente) {
         Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
         Posicao posicaoAtual = new Posicao(recargas.get(0).getLinha(), recargas.get(0).getColuna());
@@ -89,6 +90,7 @@ public class Ambiente {
         agente.atualizarDadosDaRecargaMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
+    /* Calcula a distância manhattan entre duas posições */
     public int distanciaManhattan(Posicao posicao1, Posicao posicao2) {
         int coordenadaX = posicao1.getLinha() - posicao2.getLinha();
         int coordenadaY = posicao1.getColuna() - posicao2.getColuna();
@@ -119,10 +121,12 @@ public class Ambiente {
         return tamanhoMatriz;
     }
 
+    /* Retorna o valor da posicao [linha][coluna] */
     public char elementoDaPosicaoLinhaColuna(int linha, int coluna) {
         return matriz[linha][coluna];
     }
 
+    /* Modifica o valor da posicao [linha][coluna] */
     public void setElementoDaPosicaoLinhaColuna(int linha, int coluna, char valor) {
         matriz[linha][coluna] = valor;
     }
@@ -212,6 +216,7 @@ public class Ambiente {
 
     /* Adiciona recargas ao ambiente */
     public void inserirRecargas() {
+
         int divisao = this.tamanhoMatriz / 3;
         int inicio = (divisao / 2);
         int fim = this.tamanhoMatriz - (divisao / 2);
@@ -242,7 +247,10 @@ public class Ambiente {
         double percentual1 = this.tamanhoMatriz + ((40 / 100) * this.tamanhoMatriz);
         double percentual2 = this.tamanhoMatriz + ((80 / 100) * this.tamanhoMatriz);
 
-        int numero = (random.nextInt(this.tamanhoMatriz)) + 10;
+        //Determina o quanto de sujeira terá o ambiente
+        double numeroAuxFixo = (double) 0.2 * (this.tamanhoMatriz * this.tamanhoMatriz);
+        double numeroAuxVariavel = (double) 0.4 * (this.tamanhoMatriz * this.tamanhoMatriz);
+        int numero = (random.nextInt((int) numeroAuxVariavel)) + (int) numeroAuxFixo;
 
         while (numero < percentual1 && numero > percentual2) {
             numero = random.nextInt(this.tamanhoMatriz);
@@ -262,7 +270,7 @@ public class Ambiente {
         }
     }
 
-    /* Verifica posições livres */
+    /* Verifica se a posição [i][j] está livre */
     public boolean posicaoLivre(int i, int j) {
         return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA && this.matriz[i][j] != LIXEIRA;
     }
@@ -314,7 +322,7 @@ public class Ambiente {
 
                 for (Agente ag : agentes) {
 
-                    acabou = ag.atualizar2();
+                    acabou = ag.atualizar();
                     if (acabou == true) {
                         break;
                     }
