@@ -1,6 +1,6 @@
 
 /**
- * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ * Esta classe representa uma coordenada no ambiente.
  */
 public class Posicao {
 
@@ -12,13 +12,13 @@ public class Posicao {
         this.coluna = coluna;
     }
 
-    public Posicao getPosicao() {
-        return new Posicao(getLinha(), getColuna());
-    }
-
     public Posicao() {
         linha = 0;
         coluna = 0;
+    }
+
+    public Posicao getPosicao() {
+        return new Posicao(getLinha(), getColuna());
     }
 
     public int getLinha() {
