@@ -1,49 +1,43 @@
 
+/**
+ * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ */
 public class Posicao {
 
-    private int x;
-    private int y;
+    private int linha;
+    private int coluna;
 
-    public Posicao(int x, int y) {
-        //this.x = y;
-        //this.y = x;
-        this.x = x;
-        this.y = y;
+    public Posicao(int linha, int coluna) {
+        this.linha = linha;
+        this.coluna = coluna;
     }
 
     public Posicao getPosicao() {
-        return new Posicao(getX(), getY());
+        return new Posicao(getLinha(), getColuna());
     }
 
     public Posicao() {
-        x = 0;
-        y = 0;
+        linha = 0;
+        coluna = 0;
     }
 
-    public Posicao inverterPonto() {
-        int xAux = getY();
-        int yAux = getX();
-
-        return new Posicao(xAux, yAux);
+    public int getLinha() {
+        return linha;
     }
 
-    public int getX() {
-        return x;
+    public void setLinha(int linha) {
+        this.linha = linha;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public int getColuna() {
+        return coluna;
     }
 
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public void setColuna(int coluna) {
+        this.coluna = coluna;
     }
 
     public String toString() {
-        return "[ " + getY() + " , " + getX() + " ]";
+        return "[ " + getLinha() + " , " + getColuna() + " ]";
     }
 }
