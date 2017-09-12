@@ -7,6 +7,7 @@ public class Ambiente {
 	private int quantidadeLixeiras;
 	private int quantidadeRecargas;
 	private static char matriz[][];
+	private static List<Ponto> lixeiras, carregadores;
 
 	List<Agente> agentes;
 
@@ -29,6 +30,8 @@ public class Ambiente {
 		this.quantidadeLixeiras = quantidadeLixeiras;
 		this.quantidadeRecargas = quantidadeRecargas;
 		this.matriz = new char[tamanhoMatriz][tamanhoMatriz];
+		lixeiras = new ArrayList<Ponto>();
+		carregadores = new ArrayList<Ponto>();
 		carregar();
 	}
 
@@ -37,13 +40,13 @@ public class Ambiente {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
 				matriz[i][j] = LIMPO;	// linha de producao
-				matriz[i][j] = SUJEIRA; // dev only
+				//matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
 		inserirParedes();
 		//Desenvolvimento - apagar depois
-
+		/*
 		matriz[6][0] = LIXEIRA;
 		matriz[3][2] = LIXEIRA;
 		matriz[4][2] = LIXEIRA;
@@ -52,10 +55,10 @@ public class Ambiente {
 		matriz[6][11] = LIXEIRA;
 		matriz[3][0] = LIXEIRA;
 		matriz[3][3] = LIXEIRA;
-
-		//inserirLixeiras();
-		//inserirRecargas();
-		//inserirSujeiras();
+		*/
+		inserirLixeiras();
+		inserirRecargas();
+		inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -119,6 +122,7 @@ public class Ambiente {
 					if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
 						this.matriz[posicaoLinha][posicaoColuna] = LIXEIRA;
 						this.quantidadeLixeiras--;
+						lixeiras.add(new Ponto(posicaoColuna, posicaoLinha));
 						continue;
 					}
 				}
@@ -144,6 +148,7 @@ public class Ambiente {
 					if (posicaoLivre(posicaoLinha, posicaoColuna) && posicaoValida(posicaoLinha, posicaoColuna)) {
 						this.matriz[posicaoLinha][posicaoColuna] = RECARGA;
 						this.quantidadeRecargas--;
+						carregadores.add(new Ponto(posicaoColuna, posicaoLinha));
 						continue;
 					}
 				}
@@ -191,6 +196,11 @@ public class Ambiente {
 		else
 			return false;
 	}
+
+	/* Retorna lista com posicao das lixeiras e carregadores */
+	public static List<Ponto> getLixeiras() { return lixeiras; }
+	public static List<Ponto> geCarregadores() { return carregadores; }
+
 
 	/* Insere agente no ambiente */
 	public void inserirAgente(Agente agente) {

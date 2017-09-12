@@ -8,6 +8,14 @@ public class Agente {
  private char direcao, lastMove;  // Direcao de varredura {d, e}
  private boolean isAvoiding, isCurrentLineClean;  // Agente esta contornando algum obstaculo (troca de linha)
 
+ private int energia, lixeira;
+
+ private static final int CUSTO_MOVIMENTO = 1;
+ private static final int CUSTO_ASPIRAR = 1;
+ private static final int CUSTO_LIXO = 1;
+ private static final int MAX_ENERGIA = 10;
+ private static final int MAX_LIXEIRA = 5;
+
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
  public static final char UP_RIGHT = 2;
@@ -18,6 +26,11 @@ public class Agente {
  public static final char DOWN = 7;
  public static final char DOWN_RIGHT = 8;
  public static final char NONE = 10;
+
+ public static final String MOVES_STR[] = {   "up_left", "up", "up_right",
+                                              "left", "agente", "right",
+                                              "down_left", "down", "down_right",
+                                              " ", " "};
 
  public static final char DIREITA = 'd';
  public static final char ESQUERDA = 'e';
@@ -31,22 +44,28 @@ public class Agente {
   this.isAvoiding = false;
   this.isCurrentLineClean = false;
 
+  this.energia = MAX_ENERGIA;
+  this.lixeira = 0;
  }
 
  public int getX() { return px; }
  public int getY() { return py; }
 
+ private void recarregarEnergia() {
+   this.energia = MAX_ENERGIA;
+ }
+
 
  private void mover(char direcao) {
    switch(direcao) {
-     case UP_LEFT : lastMove = UP_LEFT; px--; py--; break;
-     case UP : lastMove = UP; py--; break;
-     case UP_RIGHT : lastMove = UP_RIGHT; px++; py--; break;
-     case LEFT : lastMove = LEFT; px--; break;
-     case RIGHT : lastMove = RIGHT; px++; break;
-     case DOWN_LEFT : lastMove = DOWN_LEFT; px--; py++; break;
-     case DOWN : lastMove = DOWN; py++; break;
-     case DOWN_RIGHT : lastMove = DOWN_RIGHT; px++; py++; break;
+     case UP_LEFT : lastMove = UP_LEFT; px--; py--; energia -= CUSTO_MOVIMENTO; break;
+     case UP : lastMove = UP; py--; energia -= CUSTO_MOVIMENTO; break;
+     case UP_RIGHT : lastMove = UP_RIGHT; energia -= CUSTO_MOVIMENTO; px++; py--; break;
+     case LEFT : lastMove = LEFT; px--; energia -= CUSTO_MOVIMENTO; break;
+     case RIGHT : lastMove = RIGHT; px++; energia -= CUSTO_MOVIMENTO; break;
+     case DOWN_LEFT : lastMove = DOWN_LEFT; energia -= CUSTO_MOVIMENTO; px--; py++; break;
+     case DOWN : lastMove = DOWN; py++; energia -= CUSTO_MOVIMENTO; break;
+     case DOWN_RIGHT : lastMove = DOWN_RIGHT; px++; energia -= CUSTO_MOVIMENTO; py++; break;
    }
  }
 
@@ -135,7 +154,6 @@ public class Agente {
    return true;
  }
 
-
  /* Atualiza estado do agente com base no valor das adjacencias
  > Requer: informacoes da celula atual e adjacentes
 
@@ -143,7 +161,6 @@ public class Agente {
    3 4 5
    6 7 8
  */
-
  public boolean atualizar(char entorno[]) {
    char prefMove = (direcao == DIREITA) ? RIGHT : LEFT;
    char noPrefMove = (direcao == DIREITA) ? LEFT : RIGHT;
@@ -153,8 +170,30 @@ public class Agente {
    char prefMoveDown = (direcao == DIREITA) ? DOWN_RIGHT : DOWN_LEFT;
    char noPrefMoveDown = (direcao == DIREITA) ? DOWN_LEFT : DOWN_RIGHT;
 
-   if(entorno[AGENTE] == Ambiente.SUJEIRA) {
+   // Verifica se agente ficou sem bateria - encerra simulacao
+   // Teoricamente nunca deve executar
+   if(this.energia <= 0) {
+     System.err.println("Agente sem energia. Simulacao falhou!");
+     System.exit(1);
+   }
+
+   //if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
+
+   if(this.lixeira == MAX_LIXEIRA) { // lixeira cheia, descarregar
+     List<Ponto> lixeiras = Ambiente.getLixeiras();
+     Ponto lixeiraProxima = lixeiras.remove(0);
+
+     List<Character> min_moves = aStar(lixeiraProxima.getX(), lixeiraProxima.getY());
+
+     while(!lixeiras.isEmpty()) {
+       lixeiraProxima = lixeiras.remove(0);
+       //List<Character> moves =
+     }
+
+   } else if(entorno[AGENTE] == Ambiente.SUJEIRA) {
      Ambiente.limpar(px, py);
+     this.energia -= CUSTO_ASPIRAR;
+     this.lixeira += CUSTO_LIXO;
    } else if(isCurrentLineClean) { // Obstaculo nas bordas, contornando
       if(isValidMove(entorno[noPrefMoveDown]) &&
       !isValidMove(entorno[prefMove]) && !isValidMove(entorno[DOWN]) &&
@@ -227,7 +266,6 @@ public class Agente {
        System.out.println("Acao nao prevista!");
        System.exit(1);
      }
-
    } else {
       // Movimentos normais - preferencial e tratamento de bordas
       if(isValidMove(entorno[prefMove])) {
@@ -256,13 +294,10 @@ public class Agente {
 
  private void log() {
     System.out.println("------------------------------------------------");
-    System.out.println("direcao = " + direcao);
-    System.out.println("px = " + px);
-    System.out.println("py = " + py);
-    System.out.println("currentLine = " + currentLine);
-    System.out.println("lastMove = " + (int)lastMove);
-    System.out.println("isAvoiding obstacle = " + isAvoiding);
-    System.out.println("isCurrentLineClean = " + isCurrentLineClean);
+    System.out.println("Direcao = " + direcao + "  Posicao = [" + px + "," + py + "]");
+    System.out.println("Energia = " + energia + "/" + MAX_ENERGIA + "  Lixeira = " + lixeira + "/" + MAX_LIXEIRA);
+    System.out.println("currentLine = " + currentLine + "  lastMove = " + MOVES_STR[(int)lastMove]);
+    System.out.println("isAvoiding obstacle = " + isAvoiding + "  isCurrentLineClean = " + isCurrentLineClean);
     System.out.println("------------------------------------------------");
  }
 
