@@ -1,4 +1,7 @@
 
+/**
+ * ORIENTACAO DO AMBIENTE: MATRIZ[LIINHA][COLUNA]
+ */
 public class FilaDePrioridades {
 
     private Nodo head;
@@ -94,6 +97,6 @@ public class FilaDePrioridades {
     }
 
     public void setSize(int size) {
-        this.size = size; 
+        this.size = size;
     }
 }
