@@ -2,19 +2,29 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+
 
 public class Agente {
  private int px, py, currentLine; // Posicao do agente, linha corrente sendo limpa
+ private int prev_x, prev_y;
  private char direcao, lastMove;  // Direcao de varredura {d, e}
- private boolean isAvoiding, isCurrentLineClean;  // Agente esta contornando algum obstaculo (troca de linha)
+
+ private boolean isAvoiding,      // Agente esta contornando algum obstaculo (troca de linha)
+                 isCurrentLineClean,
+                 isRunningAStar,
+                 isDroppingTrash, // Indo para lixeira
+                 isRecharging;    // Indo para carregador
+ private List<Character> moves, moves_back;
+ private List<Ponto> lixeiras, carregadores;
 
  private int energia, lixeira;
 
- private static final int CUSTO_MOVIMENTO = 1;
- private static final int CUSTO_ASPIRAR = 1;
+ private static final int CUSTO_MOVIMENTO = 0;
+ private static final int CUSTO_ASPIRAR = 0;
  private static final int CUSTO_LIXO = 1;
  private static final int MAX_ENERGIA = 10;
- private static final int MAX_LIXEIRA = 5;
+ private static final int MAX_LIXEIRA = 2;
 
  public static final char UP_LEFT = 0;
  public static final char UP = 1;
@@ -43,6 +53,11 @@ public class Agente {
   this.currentLine = py;
   this.isAvoiding = false;
   this.isCurrentLineClean = false;
+  this.isRunningAStar = false;
+  this.moves = new ArrayList<Character>();
+
+  this.lixeiras = Ambiente.getLixeiras();
+  this.carregadores = Ambiente.getCarregadores();
 
   this.energia = MAX_ENERGIA;
   this.lixeira = 0;
@@ -81,7 +96,7 @@ public class Agente {
  }
 
 
- public List<Character> aStar(int dest_x, int dest_y) {
+ public List<Character> aStar(int dest_x, int dest_y, boolean adjacente) {
    char entorno[] = new char[9];
    Queue<Node> nodes = new PriorityQueue<Node>();
    List<Character> result = new ArrayList<Character>();
@@ -97,12 +112,26 @@ public class Agente {
    while(!nodes.isEmpty()) {
      node = nodes.remove();
 
-     System.out.println("Retirando nodo da pqueue " + node.toString());
+     //System.out.println("Retirando nodo da pqueue " + node.toString());
      curr_x = node.getX();
      curr_y = node.getY();
 
-     if(node.getX() == dest_x && node.getY() == dest_y) {
-       break;
+     // Destino eh adjacente ao ponto de destino (nao para exatamente em cima)
+     if(adjacente) {
+       if((node.getX() == dest_x - 1 && node.getY() == dest_y - 1) ||   // up_left
+          (node.getX() == dest_x && node.getY() == dest_y - 1) ||       // up
+          (node.getX() == dest_x + 1 && node.getY() == dest_y - 1) ||   // up_right
+          (node.getX() == dest_x - 1 && node.getY() == dest_y) ||       // left
+          (node.getX() == dest_x + 1 && node.getY() == dest_y) ||       // right
+          (node.getX() == dest_x - 1 && node.getY() == dest_y + 1) ||   // down_left
+          (node.getX() == dest_x && node.getY() == dest_y + 1) ||       // down
+          (node.getX() == dest_x + 1 && node.getY() == dest_y + 1)) {   // down_right
+            break;
+       }
+     } else { // posicao exata
+       if(node.getX() == dest_x && node.getY() == dest_y) {
+         break;
+       }
      }
 
      entorno = Ambiente.getEntorno(curr_x, curr_y);
@@ -129,19 +158,18 @@ public class Agente {
          }
 
          Node node_child = new Node(     node.getG() + 1, calculate_heuristic(x, y, dest_x, dest_y),
-                            (char)i, node, x, y);
-         System.out.println("    Criando nodo " + node_child.toString());
+                                        (char)i, node, x, y);
+         //System.out.println("   Criando node child " + node_child.toString());
          nodes.add(node_child);
        }
      }
    }
 
    while(node.getParent() != null) {
-     System.out.println("Adicionando na resposta --- " + node.toString());
      result.add(node.getDirection());
      node = node.getParent();
    }
-
+   Collections.reverse(result);
    return result;
  }
 
@@ -177,18 +205,71 @@ public class Agente {
      System.exit(1);
    }
 
-   //if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
+   if(isRunningAStar) {
+     System.out.println("Rodando astar");
+     // Realiza movimento de ida
+     if(!this.moves.isEmpty()) {
+       System.out.println("Movimento de ida");
+       mover(this.moves.remove(0));
+     } else {
+       if(isDroppingTrash) {
+          this.lixeira = 0;
+          isDroppingTrash = false;
 
-   if(this.lixeira == MAX_LIXEIRA) { // lixeira cheia, descarregar
-     List<Ponto> lixeiras = Ambiente.getLixeiras();
-     Ponto lixeiraProxima = lixeiras.remove(0);
+          // Gera movimento para posicao anterior
+          this.moves_back = aStar(this.prev_x, this.prev_y, false);
+       } else if(isRecharging) {
+         this.energia = MAX_ENERGIA;
+         isRecharging = false;
 
-     List<Character> min_moves = aStar(lixeiraProxima.getX(), lixeiraProxima.getY());
+         // Gera movimento para posicao anterior
+         this.moves_back = aStar(this.prev_x, this.prev_y, false);
+       }
 
-     while(!lixeiras.isEmpty()) {
-       lixeiraProxima = lixeiras.remove(0);
-       //List<Character> moves =
+       // Realiza movimento de volta
+       if(!this.moves_back.isEmpty()) {
+         System.out.println("Movimento de volta");
+         mover(this.moves_back.remove(0));
+       } else {
+         isRunningAStar = false;
+       }
      }
+
+   //} else if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
+
+   } else if(this.lixeira == MAX_LIXEIRA) { // lixeira cheia, descarregar
+     isRunningAStar = true;
+     isDroppingTrash = true;
+
+     this.prev_x = this.px;
+     this.prev_y = this.py;
+
+     if(!lixeiras.isEmpty()) {
+       Ponto lixeiraProxima = lixeiras.get(0);
+
+       List<Character> min_moves = aStar(lixeiraProxima.getX(), lixeiraProxima.getY(), true);
+
+       for(int i = 1; i < lixeiras.size(); i++) {
+         lixeiraProxima = lixeiras.get(i);
+         List<Character> moves_aux = aStar(lixeiraProxima.getX(), lixeiraProxima.getY(), true);
+
+         if(moves_aux.size() < min_moves.size()) {
+           min_moves = moves_aux;
+         }
+       }
+       this.moves = min_moves;
+       System.out.print("Movimentos de ida = ");
+       for(int i = 0; i < this.moves.size(); i++) {
+         System.out.print((int)this.moves.get(i) + " ");
+       }
+       System.out.println();
+
+       this.moves_back = new ArrayList<Character>();
+     } else {
+        System.err.println("Sem lixeiras por perto!");
+        System.exit(1);
+     }
+
 
    } else if(entorno[AGENTE] == Ambiente.SUJEIRA) {
      Ambiente.limpar(px, py);
@@ -294,10 +375,11 @@ public class Agente {
 
  private void log() {
     System.out.println("------------------------------------------------");
-    System.out.println("Direcao = " + direcao + "  Posicao = [" + px + "," + py + "]");
+    System.out.println("Direcao = " + direcao + "  Posicao = [" + px + "," + py + "]  Prev = [" + prev_x + "," + prev_y + "]");
     System.out.println("Energia = " + energia + "/" + MAX_ENERGIA + "  Lixeira = " + lixeira + "/" + MAX_LIXEIRA);
     System.out.println("currentLine = " + currentLine + "  lastMove = " + MOVES_STR[(int)lastMove]);
     System.out.println("isAvoiding obstacle = " + isAvoiding + "  isCurrentLineClean = " + isCurrentLineClean);
+    System.out.println("isRunningAStar = " + isRunningAStar);
     System.out.println("------------------------------------------------");
  }
 

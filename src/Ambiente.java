@@ -40,25 +40,32 @@ public class Ambiente {
 		for (int i = 0; i < tamanhoMatriz; i++) {
 			for (int j = 0; j < tamanhoMatriz; j++) {
 				matriz[i][j] = LIMPO;	// linha de producao
-				//matriz[i][j] = SUJEIRA; // dev only
+				matriz[i][j] = SUJEIRA; // dev only
 			}
 		}
 
 		inserirParedes();
 		//Desenvolvimento - apagar depois
-		/*
-		matriz[6][0] = LIXEIRA;
-		matriz[3][2] = LIXEIRA;
-		matriz[4][2] = LIXEIRA;
-		matriz[7][0] = LIXEIRA;
-		matriz[7][3] = LIXEIRA;
-		matriz[6][11] = LIXEIRA;
-		matriz[3][0] = LIXEIRA;
-		matriz[3][3] = LIXEIRA;
-		*/
-		inserirLixeiras();
-		inserirRecargas();
-		inserirSujeiras();
+
+		//matriz[6][0] = LIXEIRA;
+		//matriz[3][2] = LIXEIRA;
+		//matriz[4][2] = LIXEIRA;
+		//matriz[7][0] = LIXEIRA;
+		//matriz[7][3] = LIXEIRA;
+		//matriz[6][11] = LIXEIRA;
+//		matriz[3][0] = LIXEIRA;
+
+		matriz[2][0] = LIXEIRA;
+		lixeiras.add(new Ponto(0, 2));
+		matriz[3][4] = LIXEIRA;
+		lixeiras.add(new Ponto(4, 3));
+		matriz[3][6] = LIXEIRA;
+		lixeiras.add(new Ponto(6, 3));
+
+
+		//inserirLixeiras();
+		//inserirRecargas();
+		//inserirSujeiras();
 	}
 
 	/* Insere paredes no ambiente */
@@ -199,7 +206,7 @@ public class Ambiente {
 
 	/* Retorna lista com posicao das lixeiras e carregadores */
 	public static List<Ponto> getLixeiras() { return lixeiras; }
-	public static List<Ponto> geCarregadores() { return carregadores; }
+	public static List<Ponto> getCarregadores() { return carregadores; }
 
 
 	/* Insere agente no ambiente */
