@@ -91,7 +91,6 @@ public class Agente {
 
  // Calculo de heuristica - Manhattan Distance
  private int calculate_heuristic(int x1, int y1, int x2, int y2) {
-
    return Math.abs(x2 - x1) + Math.abs(y2 - y1);
  }
 
@@ -187,25 +186,29 @@ public class Agente {
    this.prev_x = this.px;
    this.prev_y = this.py;
 
+   int min_moves = 0;
+
    if(!carregadores.isEmpty()) {
      Ponto carregadorProximo = carregadores.get(0);
 
-     List<Character> min_moves = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+     //List<Character> min_moves = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+     min_moves = calculate_heuristic(this.px, this.py, carregadorProximo.getX(), carregadorProximo.getY());
 
      for(int i = 1; i < carregadores.size(); i++) {
        carregadorProximo = carregadores.get(i);
-       List<Character> moves_aux = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+       int moves_aux = calculate_heuristic(this.px, this.py, carregadorProximo.getX(), carregadorProximo.getY());
 
-       if(moves_aux.size() < min_moves.size()) {
+       //System.out.println("******* heuristica = " + moves_aux);
+
+       if(moves_aux < min_moves) {
          min_moves = moves_aux;
        }
      }
-     this.moves = min_moves;
    }
 
    //System.out.println("Custo ate carregador mais proximo = " + this.moves.size());
 
-   if(this.energia < (this.moves.size() * CUSTO_MOVIMENTO + 5)) {
+   if(this.energia < (min_moves * CUSTO_MOVIMENTO) * 2) {
      return true;
    }
    return false;
@@ -267,6 +270,36 @@ public class Agente {
    } else if(isLowEnergy()) { // Verifica se consegue chegar no carregador mais proximo
      isRunningAStar = true;
      isRecharging = true;
+
+     this.prev_x = this.px;
+     this.prev_y = this.py;
+
+     if(!carregadores.isEmpty()) {
+       Ponto carregadorProximo = carregadores.get(0);
+
+       List<Character> min_moves = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+
+       for(int i = 1; i < carregadores.size(); i++) {
+         carregadorProximo = carregadores.get(i);
+         List<Character> moves_aux = aStar(carregadorProximo.getX(), carregadorProximo.getY(), true);
+
+         if(moves_aux.size() < min_moves.size()) {
+           min_moves = moves_aux;
+         }
+       }
+       this.moves = min_moves;
+       //System.out.print("Movimentos de ida = ");
+       //for(int i = 0; i < this.moves.size(); i++) {
+      //   System.out.print((int)this.moves.get(i) + " ");
+       //}
+       //System.out.println();
+
+       this.moves_back = new ArrayList<Character>();
+     } else {
+        System.err.println("Sem lixeiras por perto!");
+        System.exit(1);
+     }
+
    } else if(this.lixeira == MAX_LIXEIRA) { // lixeira cheia, descarregar
      isRunningAStar = true;
      isDroppingTrash = true;
