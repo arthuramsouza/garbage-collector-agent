@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Esta classe consiste na implementação do ambiente.
+ * Esta classe consiste na implementacao do ambiente.
  */
 public class Ambiente {
 
@@ -46,7 +46,7 @@ public class Ambiente {
         carregar();
     }
 
-    /* O ambiente informa ao agente qual é a lixeira mais próxima */
+    /* O ambiente informa ao agente qual o a lixeira mais proxima */
     public void lixeiraMaisProximaDoAgente(Agente agente) {
         Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
         Posicao posicaoAtual = new Posicao(lixeiras.get(0).getLinha(), lixeiras.get(0).getColuna());
@@ -68,7 +68,7 @@ public class Ambiente {
         agente.atualizarDadosDaLixeiraMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
-    /* O ambiente informa ao agente qual é a recarga mais próxima */
+    /* O ambiente informa ao agente qual o a recarga mais proxima */
     public void recargaMaisProximaDoAgente(Agente agente) {
         Posicao posicaoDoAgente = new Posicao(agente.getPosicaoLinha(), agente.getPosicaoColuna());
         Posicao posicaoAtual = new Posicao(recargas.get(0).getLinha(), recargas.get(0).getColuna());
@@ -90,7 +90,7 @@ public class Ambiente {
         agente.atualizarDadosDaRecargaMaisProxima(posicaoMaisProxima.getLinha(), posicaoMaisProxima.getColuna(), menorDistancia);
     }
 
-    /* Calcula a distância manhattan entre duas posições */
+    /* Calcula a distância manhattan entre duas posicoes */
     public int distanciaManhattan(Posicao posicao1, Posicao posicao2) {
         int coordenadaX = posicao1.getLinha() - posicao2.getLinha();
         int coordenadaY = posicao1.getColuna() - posicao2.getColuna();
@@ -247,7 +247,7 @@ public class Ambiente {
         double percentual1 = this.tamanhoMatriz + ((40 / 100) * this.tamanhoMatriz);
         double percentual2 = this.tamanhoMatriz + ((80 / 100) * this.tamanhoMatriz);
 
-        //Determina o quanto de sujeira terá o ambiente
+        //Determina o quanto de sujeira tera o ambiente
         double numeroAuxFixo = (double) 0.2 * (this.tamanhoMatriz * this.tamanhoMatriz);
         double numeroAuxVariavel = (double) 0.4 * (this.tamanhoMatriz * this.tamanhoMatriz);
         int numero = (random.nextInt((int) numeroAuxVariavel)) + (int) numeroAuxFixo;
@@ -270,12 +270,12 @@ public class Ambiente {
         }
     }
 
-    /* Verifica se a posição [i][j] está livre */
+    /* Verifica se a posicao [i][j] esta livre */
     public boolean posicaoLivre(int i, int j) {
         return this.matriz[i][j] != PAREDE && this.matriz[i][j] != SUJEIRA && this.matriz[i][j] != RECARGA && this.matriz[i][j] != LIXEIRA;
     }
 
-    /* Verifica se a posição é valida, ou seja, paredes ou bordas ao lado para adicionar lixeiras e pontos de recargas */
+    /* Verifica se a posicao o valida, ou seja, paredes ou bordas ao lado para adicionar lixeiras e pontos de recargas */
     public boolean posicaoValida(int posicaoLinha, int posicaoColuna) {
         if ((posicaoColuna + 1) > this.tamanhoMatriz - 1 || (posicaoColuna - 1) < 0) {
             return true;
