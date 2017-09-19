@@ -29,7 +29,7 @@ public class Agente {
     int capacidadeTotalDeLixo;
     int lixoColetado;
 
-    private int posicaoLinha, posicaoColuna; // Posição do agente
+    private int posicaoLinha, posicaoColuna; // Posicao do agente
     private char direcao;
 
     private boolean desviandoDeObjetos;
@@ -262,13 +262,13 @@ public class Agente {
         this.lixoColetado = lixoColetado;
     }
 
-    /* Executa o algoritmo A* tendo como alvo a lixeira mais próxima ao agente. */
+    /* Executa o algoritmo A* tendo como alvo a lixeira mais proxima ao agente. */
     public ArrayList<Character> aStarBuscandoLixeira(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
         objetoExcecaoNaBuscaAtual = LIXEIRA;
         return aStar(posicaoDoAgente, posicaoDoDestino);
     }
 
-    /* Executa o algoritmo A* tendo como alvo a recarga mais próxima ao agente. */
+    /* Executa o algoritmo A* tendo como alvo a recarga mais proxima ao agente. */
     public ArrayList<Character> aStarBuscandoRecarga(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
         objetoExcecaoNaBuscaAtual = RECARGA;
 
@@ -279,12 +279,12 @@ public class Agente {
         return ambiente.distanciaManhattan(posicaoOrigem, posicaoDestino);
     }
 
-    /* O agente solicita dados da lixeira próxima. */
+    /* O agente solicita dados da lixeira proxima. */
     public void solicitarDadosDaLixeiraMaisProxima() {
         ambiente.lixeiraMaisProximaDoAgente(this);
     }
 
-    /* O agente solicita dados da recarga próxima. */
+    /* O agente solicita dados da recarga proxima. */
     public void solicitarDadosDaRecargaMaisProxima() {
         ambiente.recargaMaisProximaDoAgente(this);
     }
@@ -409,22 +409,38 @@ public class Agente {
         this.elementoObservadoNaDiagonalDireitaInferior = elementoObservadoNaDiagonalDireitaInferior;
     }
 
-    /* Imprime informações relevantes durante a execução do programa. */
+    /* Imprime informacoes relevantes durante a execucao do programa. */
     public void log() {
         System.out.println("------------------------------------------------");
         if (modoAEstrelaAtivado) {
             if (modoAEstrelaLixeiraAtivado) {
                 System.out.println("MODO A* ATIVADO = " + modoAEstrelaAtivado);
-                System.out.println("POSICAO ORIGEM (AGENTE) = " + posicaoOrigem.toString());
-                System.out.println("POSICAO DESTINO (LIXEIRA) = " + posicaoAlvo.toString());
-                System.out.println("MOVIMENTOS DA IDA = " + caminhoAEstrelaIndo.toString());
-                System.out.println("MOVIMENTOS DA VOLTA = " + caminhoAEstrelaVoltando.toString());
+                if ((caminhoAEstrelaIndo != null) && (caminhoAEstrelaVoltando != null)) {
+                    System.out.println("POSICAO ORIGEM (AGENTE) = " + posicaoAlvo.toString());
+                    System.out.println("POSICAO DESTINO (LIXEIRA) = " + posicaoOrigem.toString());
+                    System.out.println("MOVIMENTOS DA IDA = " + caminhoAEstrelaIndo.toString());
+                    System.out.println("MOVIMENTOS DA VOLTA = " + caminhoAEstrelaVoltando.toString());
+                }
+                else{
+                    System.out.println("POSICAO ORIGEM = []");
+                    System.out.println("POSICAO DESTINO  = []");
+                    System.out.println("MOVIMENTOS DA IDA = []");
+                    System.out.println("MOVIMENTOS DA VOLTA = []");
+                }
             } else if (modoAEstrelaRecargaAtivado) {
                 System.out.println("MODO A* ATIVADO = " + modoAEstrelaAtivado);
-                System.out.println("POSICAO ORIGEM (AGENTE) = " + posicaoOrigem.toString());
-                System.out.println("POSICAO DESTINO (RECARGA) = " + posicaoAlvo.toString());
-                System.out.println("MOVIMENTOS DA IDA = " + caminhoAEstrelaIndo.toString());
-                System.out.println("MOVIMENTOS DA VOLTA = " + caminhoAEstrelaVoltando.toString());
+                if ((caminhoAEstrelaIndo != null) && (caminhoAEstrelaVoltando != null)) {
+                    System.out.println("POSICAO ORIGEM (AGENTE) = " + posicaoAlvo.toString());
+                    System.out.println("POSICAO DESTINO (RECARGA) = " + posicaoOrigem.toString());
+                    System.out.println("MOVIMENTOS DA IDA = " + caminhoAEstrelaIndo.toString());
+                    System.out.println("MOVIMENTOS DA VOLTA = " + caminhoAEstrelaVoltando.toString());
+                }
+                else{
+                    System.out.println("POSICAO ORIGEM = []");
+                    System.out.println("POSICAO DESTINO  = []");
+                    System.out.println("MOVIMENTOS DA IDA = []");
+                    System.out.println("MOVIMENTOS DA VOLTA = []");
+                }
             }
         } else {
             System.out.println("MODO A* ATIVADO = " + modoAEstrelaAtivado);
@@ -441,7 +457,7 @@ public class Agente {
         System.out.println("------------------------------------------------");
     }
 
-    /* Realiza a próxima ação do agente */
+    /* Realiza a proxima acao do agente */
     public boolean atualizar() {
         //Se a energia do agente chegou a zero, ele para de funcionar e o programa encerra.
         if (this.getEnergiaRestante() <= 0) {
@@ -449,11 +465,11 @@ public class Agente {
             return true;
         }
 
-        //O agente solicita ao ambiente a posição da lixeira mais próxima e da recarga mais próxima.
+        //O agente solicita ao ambiente a posicao da lixeira mais proxima e da recarga mais proxima.
         solicitarDadosDaLixeiraMaisProxima();
         solicitarDadosDaRecargaMaisProxima();
 
-        //Se existe lixo na posição do agente e ainda existe espaço no repositório, o lixo é coletado.
+        //Se existe lixo na posicao do agente e ainda existe espaco no repositorio, o lixo e coletado.
         if (existeSujeiraNaPosicaoDoAgente()) {
             if (possoColetarMaisLixo()) {
                 this.aspirar();
@@ -465,11 +481,11 @@ public class Agente {
                 && (modoAEstrelaAtivado == false)
                 && (modoAEstrelaLixeiraAtivado == false)
                 && (modoAEstrelaRecargaAtivado == false)) {
-            //se o agente possui energia o suficiente para ir até a lixeira
+            //se o agente possui energia o suficiente para ir ate a lixeira
             if (getDistanciaDaLixeiraMaisProxima() < (getEnergiaRestante() - (ambiente.getTamanhoMatriz() * 2))) {
                 //Guarda estado do agente
                 salvarInformacoesDoAgente();
-                //Executa o cálculo A* para determinar a lista de movimentos do agente
+                //Executa o calculo A* para determinar a lista de movimentos do agente
                 caminhoAEstrelaIndo = aStarBuscandoLixeira(this.getPosicao(), lixeiraMaisProxima.getPosicao());
                 caminhoAEstrelaVoltando = aStarBuscandoLixeira(lixeiraMaisProxima.getPosicao(), this.getPosicao());
                 //Ativa o modo A*
@@ -478,11 +494,11 @@ public class Agente {
                 modoAEstrelaLixeiraAtivado = true;
                 aEstrelaIndo = true;
                 //System.out.println("VOU/ENTREI NO MODO A* ESTRELA! =]");
-            } //Se não possui energia o suficiente para chegar até a lixeira, deve primeiro recarregar a bateria 
+            } //Se nao possui energia o suficiente para chegar ate a lixeira, deve primeiro recarregar a bateria 
             else {
                 //Guarda o estado do agente
                 salvarInformacoesDoAgente();
-                //Executa o cálculo A* para determinar a lista de movimentos do agente
+                //Executa o calculo A* para determinar a lista de movimentos do agente
                 caminhoAEstrelaIndo = aStarBuscandoRecarga(this.getPosicao(), recargaMaisProxima.getPosicao());
                 caminhoAEstrelaVoltando = aStarBuscandoRecarga(recargaMaisProxima.getPosicao(), this.getPosicao());
                 //Ativa o modo A*
@@ -501,7 +517,7 @@ public class Agente {
                 && (modoAEstrelaRecargaAtivado == false)) {
             //Guarda estado do agente
             salvarInformacoesDoAgente();
-            //Executa o cálculo A* para determinar a lista de movimentos do agente
+            //Executa o calculo A* para determinar a lista de movimentos do agente
             caminhoAEstrelaIndo = aStarBuscandoRecarga(this.getPosicao(), recargaMaisProxima.getPosicao());
             caminhoAEstrelaVoltando = aStarBuscandoRecarga(recargaMaisProxima.getPosicao(), this.getPosicao());
             //Ativa o modo A*
@@ -512,13 +528,13 @@ public class Agente {
             //System.out.println("VOU/ENTREI NO MODO A* ESTRELA! =]");
         }
 
-        //ESTADO -> A*_LIXEIRA [O AGENTE ESTÁ EXECUTANDO OS PASSOS DO A* PARA CHEGAR NA LIXEIRA MAIS PRÓXIMA]
+        //ESTADO -> A*_LIXEIRA [O AGENTE ESTa EXECUTANDO OS PASSOS DO A* PARA CHEGAR NA LIXEIRA MAIS PRoXIMA]
         if (modoAEstrelaLixeiraAtivado == true) {
             log();
 
-            //Se o agente está fazendo o caminho de ida
+            //Se o agente esta fazendo o caminho de ida
             if (aEstrelaIndo == true) {
-                //Executa o próximo movimento da lista de passos do A*
+                //Executa o proximo movimento da lista de passos do A*
                 if ((caminhoAEstrelaIndo != null) && (caminhoAEstrelaIndo.size() > 1) && (iteradorCaminhoAEstrela < caminhoAEstrelaIndo.size() - 1)) {
                     realizarMovimento(caminhoAEstrelaIndo.get(iteradorCaminhoAEstrela));
                     iteradorCaminhoAEstrela++;
@@ -532,9 +548,9 @@ public class Agente {
                     iteradorCaminhoAEstrela = 1;
                     //System.out.println("ACABEI DE DESCARREGAR O LIXO! =]");
                 }
-            } //Se o agente está fazendo o caminho de volta
+            } //Se o agente esta fazendo o caminho de volta
             else if (aEstrelaVoltando == true) {
-                //Executa o próximo movimento da lista de passos do A*
+                //Executa o proximo movimento da lista de passos do A*
                 if ((caminhoAEstrelaVoltando != null) && (caminhoAEstrelaVoltando.size() > 1) && (iteradorCaminhoAEstrela < caminhoAEstrelaVoltando.size())) {
                     realizarMovimento(caminhoAEstrelaVoltando.get(iteradorCaminhoAEstrela));
                     iteradorCaminhoAEstrela++;
@@ -551,13 +567,13 @@ public class Agente {
                     //System.out.println("ACABEI DE VOLTAR PARA A POSICAO ONDE EU ESTAVA! =]");
                 }
             }
-        } //ESTADO -> A*_RECARGA [O AGENTE ESTÁ EXECUTANDO OS PASSOS DO A* PARA CHEGAR NA RECARGA MAIS PRÓXIMA]
+        } //ESTADO -> A*_RECARGA [O AGENTE ESTa EXECUTANDO OS PASSOS DO A* PARA CHEGAR NA RECARGA MAIS PRoXIMA]
         else if (modoAEstrelaRecargaAtivado == true) {
             log();
 
-            //Se o agente está fazendo o caminho de ida
+            //Se o agente esta fazendo o caminho de ida
             if (aEstrelaIndo == true) {
-                //Executa o próximo movimento da lista de passos do A*
+                //Executa o proximo movimento da lista de passos do A*
                 if ((caminhoAEstrelaIndo != null) && (caminhoAEstrelaIndo.size() > 1) && (iteradorCaminhoAEstrela < caminhoAEstrelaIndo.size() - 1)) {
                     realizarMovimento(caminhoAEstrelaIndo.get(iteradorCaminhoAEstrela));
                     iteradorCaminhoAEstrela++;
@@ -571,9 +587,9 @@ public class Agente {
                     iteradorCaminhoAEstrela = 1;
                     //System.out.println("ACABEI DE RECARREGAR A BATERIA! =]");
                 }
-            } //Se o agente está fazendo o caminho de volta
+            } //Se o agente esta fazendo o caminho de volta
             else if (aEstrelaVoltando == true) {
-                //Executa o próximo movimento da lista de passos do A*
+                //Executa o proximo movimento da lista de passos do A*
                 if ((caminhoAEstrelaVoltando != null) && (caminhoAEstrelaVoltando.size() > 1) && (iteradorCaminhoAEstrela < caminhoAEstrelaVoltando.size())) {
                     realizarMovimento(caminhoAEstrelaVoltando.get(iteradorCaminhoAEstrela));
                     iteradorCaminhoAEstrela++;
@@ -590,7 +606,7 @@ public class Agente {
                     //System.out.println("ACABEI DE VOLTAR PARA A POSICAO ONDE EU ESTAVA! =]");
                 }
             }
-        } //ESTADO -> VARRENDO AMBIENTE [O AGENTE ESTÁ VARRENDO O AMBIENTE]
+        } //ESTADO -> VARRENDO AMBIENTE [O AGENTE ESTa VARRENDO O AMBIENTE]
         else if (varreduraPorLinhaNaEsquerdaConcluida == false) {
             varreduraDeLinhasPelaEsquerda();
         } else if (efetuarTransicao == true) {
@@ -606,13 +622,13 @@ public class Agente {
         return varreduraCompletamenteConcluida;
     }
 
-    /*  Implementação do algoritmo A* (retorna uma lista de movimentos) */
+    /*  Implementacao do algoritmo A* (retorna uma lista de movimentos) */
     public ArrayList<Character> aStar(Posicao posicaoDoAgente, Posicao posicaoDoDestino) {
         posicaoAlvo = posicaoDoDestino.getPosicao();
         posicaoOrigem = posicaoDoAgente.getPosicao();
         int n = ambiente.getTamanhoMatriz();
 
-        //Matriz que indica o algoritmo quais estados já foram visitados
+        //Matriz que indica o algoritmo quais estados ja foram visitados
         boolean[][] marked_matrix = new boolean[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -623,27 +639,27 @@ public class Agente {
         //Fila de Prioridades usada no algoritmo
         FilaDePrioridades priority_queue = new FilaDePrioridades();
 
-        //Se a posição inicial é igual a posição final, encerra algoritmo        
+        //Se a posicao inicial e igual a posicao final, encerra algoritmo        
         if (solicitarCalculoDeHeuristicaAoAmbiente(posicaoDoAgente, posicaoDoDestino) == 0) {
             return new ArrayList<Character>();
         }
 
-        //Cria o nodo com a posição inicial e o adiciona na fila de prioridades         
+        //Cria o nodo com a posicao inicial e o adiciona na fila de prioridades         
         Nodo start_node = new Nodo();
         start_node.setPosition(posicaoDoAgente.getPosicao());
         priority_queue.addToQueue(start_node);
 
-        //Este procedimento encerra quando remove o nodo objetivo da fila, ou quando não existem mais nodos na mesma
+        //Este procedimento encerra quando remove o nodo objetivo da fila, ou quando nao existem mais nodos na mesma
         while (priority_queue.getSize() > 0) {
             //Remove o nodo de maior prioridade da fila
             Nodo node_removed = priority_queue.removeFromQueue();
 
-            //Se o retorno da heurística para esse nodo for zero, então o algoritmo já pode encerrar
+            //Se o retorno da heurística para esse nodo for zero, entao o algoritmo ja pode encerrar
             if (solicitarCalculoDeHeuristicaAoAmbiente(node_removed.getPosition(), posicaoDoDestino) == 0) {
                 return node_removed.getPath();
             }
 
-            //Verifica quais são os sucessores do nodo removido da fila
+            //Verifica quais sao os sucessores do nodo removido da fila
             ArrayList<Sucessor> sucessores = calcularSucessores(node_removed.getPosition());
 
             //Itera sobre os sucessores do nodo removido
@@ -651,7 +667,7 @@ public class Agente {
                 int sucessor_linha = sucessor.getPosicao().getLinha();
                 int sucessor_coluna = sucessor.getPosicao().getColuna();
 
-                //Executa o código a seguir somente se esta posição do mapa ainda não foi explorada
+                //Executa o codigo a seguir somente se esta posicao do mapa ainda nao foi explorada
                 if (marked_matrix[sucessor_linha][sucessor_coluna] == false) {
                     //Cria um nodo para essa posicao do mapa
                     Nodo sucessor_nodo = new Nodo();
@@ -675,7 +691,7 @@ public class Agente {
                     //Adiciona o nodo na fila de prioridades
                     priority_queue.addToQueue(sucessor_nodo);
 
-                    //se esta não é a posição objetivo, ela é marcada para que não seja explorada novamente
+                    //se esta nao e a posicao objetivo, ela e marcada para que nao seja explorada novamente
                     if (solicitarCalculoDeHeuristicaAoAmbiente(sucessor.getPosicao(), posicaoDoDestino) != 0) {
                         marked_matrix[sucessor_linha][sucessor_coluna] = true;
                     }
@@ -693,12 +709,12 @@ public class Agente {
 
         //Se estou indo para a direita
         if (direcao == DIREITA && indo == true) {
-            //Se esta é a última posição da linha
+            //Se esta e a última posicao da linha
             if (this.getPosicaoColuna() == ambiente.getTamanhoMatriz() - 1) {
                 direcao = ESQUERDA;
                 voltando = true;
                 indo = false;
-            } //Se não existe uma parede na direita, se move para a direita
+            } //Se nao existe uma parede na direita, se move para a direita
             else if (elementoObservadoNaDireitaDoAgente != PAREDE) {
                 this.moverParaDireita();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
@@ -707,7 +723,7 @@ public class Agente {
                 indo = false;
             }
         } else if (direcao == ESQUERDA && voltando == true) {
-            //Se esta é a primeira posição da linha
+            //Se esta e a primeira posicao da linha
             if (this.getPosicaoColuna() == 0) {
                 if (this.getPosicaoColuna() == 0 && this.getPosicaoLinha() == ambiente.getTamanhoMatriz() - 1) {
                     varreduraPorLinhaNaEsquerdaConcluida = true;
@@ -720,7 +736,7 @@ public class Agente {
                     voltando = false;
                     indo = true;
                 }
-            } //Se não existe uma parede na esquerda, se move para a esquerda
+            } //Se nao existe uma parede na esquerda, se move para a esquerda
             else if (elementoObservadoNaEsquerdaDoAgente != PAREDE) {
                 this.moverParaEsquerda();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
@@ -738,12 +754,12 @@ public class Agente {
 
         //Se estou indo para a esquerda
         if (direcao == ESQUERDA && indo == true) {
-            //Se esta é a primeira posição da linha
+            //Se esta e a primeira posicao da linha
             if (this.getPosicaoColuna() == 0) {
                 direcao = DIREITA;
                 voltando = true;
                 indo = false;
-            } //Se não existe uma parede na esquerda, se move para a esquerda
+            } //Se nao existe uma parede na esquerda, se move para a esquerda
             else if (elementoObservadoNaEsquerdaDoAgente != PAREDE) {
                 this.moverParaEsquerda();
             } else if (elementoObservadoNaEsquerdaDoAgente == PAREDE) {
@@ -752,7 +768,7 @@ public class Agente {
                 indo = false;
             }
         } else if (direcao == DIREITA && voltando == true) {
-            //Se esta é a última posição da linha
+            //Se esta e a última posicao da linha
             if (this.getPosicaoColuna() == ambiente.getTamanhoMatriz() - 1) {
                 if (this.getPosicaoColuna() == ambiente.getTamanhoMatriz() - 1 && this.getPosicaoLinha() == ambiente.getTamanhoMatriz() - 1) {
                     varreduraPorLinhaNaDireitaConcluida = true;
@@ -768,7 +784,7 @@ public class Agente {
                     voltando = false;
                     indo = true;
                 }
-            } //Se não existe uma parede na esquerda, se move para a esquerda
+            } //Se nao existe uma parede na esquerda, se move para a esquerda
             else if (elementoObservadoNaDireitaDoAgente != PAREDE) {
                 this.moverParaDireita();
             } else if (elementoObservadoNaDireitaDoAgente == PAREDE) {
@@ -788,12 +804,12 @@ public class Agente {
 
         //Se estou indo para cima
         if (direcao == ACIMA && indo == true) {
-            //Se esta é a última posição da coluna
+            //Se esta e a última posicao da coluna
             if (this.getPosicaoLinha() == 0) {
                 direcao = ABAIXO;
                 voltando = true;
                 indo = false;
-            } //Se não existe parede acima
+            } //Se nao existe parede acima
             else if (elementoObservadoEmCimaDoAgente != PAREDE) {
                 //System.out.println("REALIZAR MOVIMENTO PARA CIMA!");
                 this.moverParaCima();
@@ -803,11 +819,11 @@ public class Agente {
                 indo = false;
             }
         } else if (direcao == ABAIXO && voltando == true) {
-            //Se esta é a primeira posição da coluna
+            //Se esta e a primeira posicao da coluna
             if (this.getPosicaoLinha() == ambiente.getTamanhoMatriz() - 1) {
                 if ((this.getPosicaoLinha() == ambiente.getTamanhoMatriz() - 1) && (this.getPosicaoColuna() == 0)) {
 
-                    //na organização do algoritmo está é a condição de encerramento da varredura
+                    //na organizacao do algoritmo esta e a condicao de encerramento da varredura
                     varreduraCompletamenteConcluida = true;
                     //System.out.println("A VARREDURA FOI CONCLUIDA COM EXITO!");
                     //return;
@@ -817,7 +833,7 @@ public class Agente {
                     voltando = false;
                     indo = true;
                 }
-            } //Se não existe uma parede na esquerda, se move para a esquerda
+            } //Se nao existe uma parede na esquerda, se move para a esquerda
             else if (elementoObservadoEmBaixoDoAgente != PAREDE) {
                 this.moverParaBaixo();
             } else if (elementoObservadoEmBaixoDoAgente == PAREDE) {
@@ -828,7 +844,7 @@ public class Agente {
         }
     }
 
-    /* Desloca o agente até o canto superior direito. */
+    /* Desloca o agente ate o canto superior direito. */
     public void transicaoParaVarreduraPelaDireita() {
         this.observarAmbiente();
         this.log();
@@ -896,7 +912,7 @@ public class Agente {
         }
     }
 
-    /* Realiza um movimento de acordo o valor da variável direção. */
+    /* Realiza um movimento de acordo o valor da variavel direcao. */
     public void realizarMovimento(char direcaoAux) {
         if (direcaoAux == ESQUERDA) {
             this.moverParaEsquerda();
@@ -961,7 +977,7 @@ public class Agente {
         this.consumirEnergia();
     }
 
-    /* Calcula e retorna uma lista sucessores de uma posição alvo. */
+    /* Calcula e retorna uma lista sucessores de uma posicao alvo. */
     public ArrayList<Sucessor> calcularSucessores(Posicao posicaoAlvo) {
         ArrayList<Sucessor> sucessores = new ArrayList<Sucessor>();
 
